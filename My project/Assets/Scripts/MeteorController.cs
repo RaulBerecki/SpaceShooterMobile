@@ -10,11 +10,13 @@ public class MeteorController : MonoBehaviour
     public Animator animator;
     float timer;
     GameManagerScript gameManagerScript;
+    PlayerController playerController;
     // Start is called before the first frame update
     void Start()
     {
         timer = 30;
         gameManagerScript = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManagerScript>();
+        playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
     }
 
     // Update is called once per frame
@@ -25,6 +27,16 @@ public class MeteorController : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
+        if (playerController.pausing)
+        {
+            rb.velocity = Vector3.zero;
+            animator.speed = 0;
+        }
+        else
+        {
+            rb.velocity = transform.up * 1.5f;
+            animator.speed = 1;
+        }
     }
     public void HitMeteor(Transform currentTransform)
     {
@@ -33,13 +45,18 @@ public class MeteorController : MonoBehaviour
             GameObject smallMeteor = Instantiate(gameManagerScript.smallMeteor, currentTransform.position, currentTransform.rotation);
             Vector3 newDirection = Quaternion.Euler(0, 0, Random.RandomRange(-15,15)) * smallMeteor.transform.up;
             smallMeteor.GetComponent<MeteorController>().rb.velocity = newDirection * 1.5f;
-            Destroy(this.gameObject);
         }
         else
         {
+            int choice = Random.RandomRange(0, 3);
+            if (choice == 0)
+            {
+                GameObject aid = Instantiate(gameManagerScript.bulletAid, currentTransform.position, currentTransform.rotation);
+                Vector3 newDirection = Quaternion.Euler(0, 0, Random.RandomRange(-15, 15)) * aid.transform.up;
+                aid.GetComponent<Transform>().eulerAngles = newDirection;
+            }
             gameManagerScript.score += 10;
-            Debug.Log(gameManagerScript.score);
-            Destroy(this.gameObject);
         }
+        Destroy(this.gameObject);
     }
 }

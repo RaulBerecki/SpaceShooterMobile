@@ -8,6 +8,7 @@ TagManager:
   - bullet
   - meteor
   - Manager
+  - aidBullet
   layers:
   - Default
   - TransparentFX
@@ -19,7 +20,7 @@ TagManager:
   - Bullet
   - Wall
   - Meteor
-  - 
+  - Aids
   - 
   - 
   - 

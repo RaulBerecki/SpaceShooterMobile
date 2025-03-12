@@ -1,18 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class UI_ManagerController : MonoBehaviour
 {
-    public Animator playButton, pauseButton;
-    public GameObject pauseMenu,mainMenu,gameMenu;
+    public Animator playButton, pauseButton,scoreText;
+    public GameObject pauseMenu,mainMenu,gameMenu,gameOverPanel;
     public PlayerController playerController;
+    public TextMeshProUGUI finalScoreText;
+    AudioSource uiAudioSource;
+    public AudioClip buttonSound;
     // Start is called before the first frame update
     void Start()
     {
         mainMenu.SetActive(true);
         gameMenu.SetActive(false);
         pauseMenu.SetActive(false);
+        gameOverPanel.SetActive(false);
+        uiAudioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -22,6 +28,8 @@ public class UI_ManagerController : MonoBehaviour
     }
     public void PlayGame()
     {
+        uiAudioSource.clip = buttonSound;
+        uiAudioSource.Play();
         StartCoroutine(Play());
     }
     public void PauseGame()
@@ -30,11 +38,14 @@ public class UI_ManagerController : MonoBehaviour
     }
     public void BackToGame()
     {
+        uiAudioSource.clip = buttonSound;
+        uiAudioSource.Play();
         StartCoroutine(BackToPlay());
     }
     IEnumerator Play()
     {
         playButton.Play("Outro_Play_Button");
+        scoreText.Play("Start_ScoreText");
         yield return new WaitForSeconds(1);
         mainMenu.SetActive(false);
         gameMenu.SetActive(true);
@@ -54,5 +65,16 @@ public class UI_ManagerController : MonoBehaviour
         gameMenu.SetActive(true);
         pauseMenu.SetActive(false);
         playerController.pausing = false;
+    }
+    public void RestartGame()
+    {
+        Application.LoadLevel("SampleScene");
+    }
+    public void GameOver()
+    {
+        gameMenu.SetActive(false);
+        finalScoreText.text = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManagerScript>().score.ToString("0");
+        scoreText.Play("Idle_ScoreText");
+        gameOverPanel.SetActive(true);
     }
 }

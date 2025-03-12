@@ -5,7 +5,7 @@ using TMPro;
 
 public class VideoQualityManager : MonoBehaviour
 {
-    public TextMeshProUGUI fpsText;
+    //public TextMeshProUGUI fpsText;
     private int frameCount = 0;
     private float elapsedTime = 0f;
     private float updateInterval = 0.5f; // Update the FPS every 0.5 seconds
@@ -17,7 +17,7 @@ public class VideoQualityManager : MonoBehaviour
     }
     void Update()
     {
-        frameCount++;
+        /*frameCount++;
         elapsedTime += Time.deltaTime;
 
         if (elapsedTime >= updateInterval)
@@ -29,6 +29,6 @@ public class VideoQualityManager : MonoBehaviour
             // Reset counters
             frameCount = 0;
             elapsedTime = 0f;
-        }
+        }*/
     }
 }
