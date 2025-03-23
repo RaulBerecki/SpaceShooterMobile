@@ -5,10 +5,10 @@ using TMPro;
 
 public class UI_ManagerController : MonoBehaviour
 {
-    public Animator playButton, pauseButton,scoreText;
+    public Animator playButton, pauseButton,scoreText,highscoreText;
     public GameObject pauseMenu,mainMenu,gameMenu,gameOverPanel;
     public PlayerController playerController;
-    public TextMeshProUGUI finalScoreText;
+    public TextMeshProUGUI finalScoreText,highscoreTextUI;
     AudioSource uiAudioSource;
     public AudioClip buttonSound;
     // Start is called before the first frame update
@@ -19,6 +19,7 @@ public class UI_ManagerController : MonoBehaviour
         pauseMenu.SetActive(false);
         gameOverPanel.SetActive(false);
         uiAudioSource = GetComponent<AudioSource>();
+        highscoreTextUI.text=PlayerPrefs.GetInt("highscore").ToString();
     }
 
     // Update is called once per frame
@@ -45,6 +46,7 @@ public class UI_ManagerController : MonoBehaviour
     IEnumerator Play()
     {
         playButton.Play("Outro_Play_Button");
+        highscoreText.Play("Outro_Highscore");
         scoreText.Play("Start_ScoreText");
         yield return new WaitForSeconds(1);
         mainMenu.SetActive(false);

@@ -9,17 +9,20 @@ public class GameManagerScript : MonoBehaviour
     public GameObject largeMeteor, smallMeteor,bulletAid;
     public GameObject[] spawnPoints;
     PlayerController playerController;
-    public float score;
+    public float score,lastScore;
     public TextMeshProUGUI scoreText;
+    AudioSource audioSource;
+    public AudioClip scoreSound;
     // Start is called before the first frame update
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         timerLeft = 2;
         timerRight = 2;
         timerUp = 2;
         timerDown = 2;
         playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-        score = 0;
+        lastScore = score = 0;
         timerAid = Random.RandomRange(5, 10);
     }
 
@@ -31,6 +34,19 @@ public class GameManagerScript : MonoBehaviour
             GenerateMeteors();
             GenerateAids();
             score += Time.deltaTime;
+        }
+        if ((int)score / 200 > (int)lastScore / 200)
+        {
+            audioSource.clip = scoreSound;
+            audioSource.Play();
+            lastScore = (score / 500) * 500;
+        }
+        if (playerController.gameOver)
+        {
+            if (PlayerPrefs.GetInt("highscore") < (int)score)
+            {
+                PlayerPrefs.SetInt("highscore", (int)score);
+            }
         }
         scoreText.text=score.ToString("0");
     }
@@ -63,7 +79,6 @@ public class GameManagerScript : MonoBehaviour
                 aid = Instantiate(smallMeteor, spawnPoints[3].transform.position + new Vector3(coordChange, 0, 0), spawnPoints[3].transform.rotation);
                 aid.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
             }
-            //aid.GetComponent<AidController>().rb.velocity = aid.transform.up * 1.5f;
             timerAid = Random.RandomRange(3, 8);
         }
     }

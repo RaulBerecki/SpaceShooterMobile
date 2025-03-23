@@ -2,31 +2,42 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.Drawing;
 public class PlayerController : MonoBehaviour
 {
     Rigidbody2D rb;
-    public float speed,rotationSpeed;
+    public float speed,noFuelSpeed,rotationSpeed,noRotationSpeed;
     bool leftClicked,rightClicked;
     UI_ManagerController UI_ManagerController;
-    AudioSource audioSource;
-    public AudioClip shooting,gameOverSound;
+    public AudioSource audioSource1,audioSource2;
+    public AudioClip shooting,gameOverSound,collectSound;
     //Shooting Variables
     public Transform shootingPoint;
     public GameObject bullet;
     public float timerToSet;
     float timer;
     int bulletsAvailable;
-    public bool playing,pausing,offGame;
+    public bool playing,pausing,offGame,gameOver;
     public TextMeshProUGUI bulletsText;
+    //TrailVariables
+    TrailRenderer trailRenderer;
+    public float trailTimer;
+    public int trailAvailable;
+    public TextMeshProUGUI trailText;
     // Start is called before the first frame update
     void Start()
     {
         rb=GetComponent<Rigidbody2D>();
-        audioSource=GetComponent<AudioSource>();
+        trailRenderer = GetComponent<TrailRenderer>();
         UI_ManagerController = GameObject.FindGameObjectWithTag("UIManager").GetComponent<UI_ManagerController>();
         timer = 0;
-        bulletsAvailable = 100;
-        playing = pausing = offGame = false;
+        trailTimer = .5f;
+        trailAvailable = bulletsAvailable = 100;
+        playing = pausing = offGame = gameOver = false;
+        noFuelSpeed = speed / 3;
+        noRotationSpeed = rotationSpeed / 2;
+        trailRenderer.startWidth = .15f;
+        trailRenderer.endWidth = .15f;
     }
 
     // Update is called once per frame
@@ -34,16 +45,31 @@ public class PlayerController : MonoBehaviour
     {
         if(playing && !pausing)
         {
-            rb.velocity = transform.up * speed;
             timer -= Time.deltaTime;
+            trailTimer -= Time.deltaTime;
+            if (trailTimer < 0 && trailAvailable >0)
+            {
+                trailAvailable--;
+                trailTimer = 0.5f;
+            }
+            if(trailAvailable>0)
+            {
+                trailRenderer.time = .35f;
+                rb.velocity = transform.up * speed;
+            }
+            else
+            {
+                trailRenderer.time = .2f;
+                rb.velocity = transform.up * 1f;
+            }
             if (timer < 0 && bulletsAvailable > 0)
             {
                 GameObject bulletInstance = Instantiate(bullet, shootingPoint.position, shootingPoint.rotation);
                 bulletInstance.GetComponent<Rigidbody2D>().velocity = shootingPoint.up * 4;
                 bulletsAvailable--;
                 timer = timerToSet;
-                audioSource.clip = shooting;
-                audioSource.Play();
+                audioSource1.clip = shooting;
+                audioSource1.Play();
             }
             if (leftClicked)
             {
@@ -54,6 +80,7 @@ public class PlayerController : MonoBehaviour
                 transform.Rotate(-new Vector3(0, 0, 1) * rotationSpeed);
             }
             bulletsText.text=bulletsAvailable.ToString("0");
+            trailText.text = trailAvailable.ToString("0");
         }
         if (rightClicked && leftClicked && !pausing)
         {
@@ -81,11 +108,12 @@ public class PlayerController : MonoBehaviour
     }
     public void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("meteor"))
+        if (collision.gameObject.CompareTag("meteor") && playing)
         {
             playing = false;
-            audioSource.clip = gameOverSound;
-            audioSource.Play();
+            audioSource1.clip = gameOverSound;
+            audioSource1.Play();
+            gameOver = true;
             UI_ManagerController.GameOver();
         }
         
@@ -95,6 +123,8 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("aidBullet"))
         {
             bulletsAvailable += 10;
+            audioSource2.clip = collectSound;
+            audioSource2.Play();
             Destroy(other.gameObject);
         }
     }
@@ -103,6 +133,7 @@ public class PlayerController : MonoBehaviour
         if (!offGame)
         {
             transform.position = new Vector3(-transform.position.x, -transform.position.y, transform.position.z);
+            trailRenderer.Clear();
             offGame = true;
         }
     }
