@@ -5,8 +5,8 @@ using TMPro;
 
 public class GameManagerScript : MonoBehaviour
 {
-    public float timerLeft, timerRight,timerUp,timerDown,timerAid;
-    public GameObject largeMeteor, smallMeteor,bulletAid;
+    public float timerLeft, timerRight,timerUp,timerDown,timerAid,timerAid2;
+    public GameObject largeMeteor, smallMeteor,bulletAid,fuelAid;
     public GameObject[] spawnPoints;
     PlayerController playerController;
     public float score,lastScore;
@@ -24,6 +24,7 @@ public class GameManagerScript : MonoBehaviour
         playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         lastScore = score = 0;
         timerAid = Random.RandomRange(5, 10);
+        timerAid2 = Random.RandomRange(5, 10);
     }
 
     // Update is called once per frame
@@ -53,6 +54,7 @@ public class GameManagerScript : MonoBehaviour
     void GenerateAids()
     {
         timerAid -= Time.deltaTime;
+        timerAid2-= Time.deltaTime;
         if(timerAid < 0)
         {
             int choice=Random.Range(0,4);
@@ -76,10 +78,38 @@ public class GameManagerScript : MonoBehaviour
             }
             else
             {
-                aid = Instantiate(smallMeteor, spawnPoints[3].transform.position + new Vector3(coordChange, 0, 0), spawnPoints[3].transform.rotation);
+                aid = Instantiate(bulletAid, spawnPoints[3].transform.position + new Vector3(coordChange, 0, 0), spawnPoints[3].transform.rotation);
                 aid.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
             }
             timerAid = Random.RandomRange(3, 8);
+        }
+        if (timerAid2 < 0)
+        {
+            int choice = Random.Range(0, 4);
+            GameObject aid;
+            float angleChange = Random.RandomRange(-15, 15);
+            float coordChange = Random.RandomRange(-6, 6);
+            if (choice == 0)
+            {
+                aid = Instantiate(fuelAid, spawnPoints[0].transform.position + new Vector3(0, coordChange, 0), spawnPoints[0].transform.rotation);
+                aid.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+            }
+            else if (choice == 1)
+            {
+                aid = Instantiate(fuelAid, spawnPoints[1].transform.position + new Vector3(0, coordChange, 0), spawnPoints[1].transform.rotation);
+                aid.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+            }
+            else if (choice == 2)
+            {
+                aid = Instantiate(fuelAid, spawnPoints[2].transform.position + new Vector3(coordChange, 0, 0), spawnPoints[2].transform.rotation);
+                aid.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+            }
+            else
+            {
+                aid = Instantiate(fuelAid, spawnPoints[3].transform.position + new Vector3(coordChange, 0, 0), spawnPoints[3].transform.rotation);
+                aid.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+            }
+            timerAid2 = Random.RandomRange(3, 8);
         }
     }
     void GenerateMeteors()

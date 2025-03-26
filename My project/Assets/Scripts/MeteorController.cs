@@ -48,10 +48,16 @@ public class MeteorController : MonoBehaviour
         }
         else
         {
-            int choice = Random.RandomRange(0, 3);
+            int choice = Random.RandomRange(0, 5);
             if (choice == 0)
             {
                 GameObject aid = Instantiate(gameManagerScript.bulletAid, currentTransform.position, currentTransform.rotation);
+                Vector3 newDirection = Quaternion.Euler(0, 0, Random.RandomRange(-15, 15)) * aid.transform.up;
+                aid.GetComponent<Transform>().eulerAngles = newDirection;
+            }
+            if(choice == 1)
+            {
+                GameObject aid = Instantiate(gameManagerScript.fuelAid, currentTransform.position, currentTransform.rotation);
                 Vector3 newDirection = Quaternion.Euler(0, 0, Random.RandomRange(-15, 15)) * aid.transform.up;
                 aid.GetComponent<Transform>().eulerAngles = newDirection;
             }

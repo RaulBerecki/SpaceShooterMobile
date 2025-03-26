@@ -127,6 +127,13 @@ public class PlayerController : MonoBehaviour
             audioSource2.Play();
             Destroy(other.gameObject);
         }
+        if (other.gameObject.CompareTag("fuelAid"))
+        {
+            trailAvailable += 10;
+            audioSource2.clip = collectSound;
+            audioSource2.Play();
+            Destroy(other.gameObject);
+        }
     }
     private void OnBecameInvisible()
     {

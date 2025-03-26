@@ -9,6 +9,7 @@ TagManager:
   - meteor
   - Manager
   - aidBullet
+  - fuelAid
   layers:
   - Default
   - TransparentFX

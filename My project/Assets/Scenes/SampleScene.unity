@@ -724,9 +724,11 @@ MonoBehaviour:
   timerUp: 0
   timerDown: 0
   timerAid: 0
+  timerAid2: 0
   largeMeteor: {fileID: 4850611288584717858, guid: 3ef710c2618143e4d916bef6b9a9ba49, type: 3}
   smallMeteor: {fileID: 6556610290590864198, guid: 0f7ca33035aa79747ba9173245e6f483, type: 3}
   bulletAid: {fileID: 8825016335917461430, guid: 5355bfe277593264f8e139c93386b5d1, type: 3}
+  fuelAid: {fileID: 5967812083277647539, guid: 14fe2954963d7ef4b8db4cccae877528, type: 3}
   spawnPoints:
   - {fileID: 2119291949}
   - {fileID: 163910627}

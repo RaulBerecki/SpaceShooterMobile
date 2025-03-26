@@ -63,7 +63,7 @@ public class UI_ManagerController : MonoBehaviour
     IEnumerator BackToPlay()
     {
         pauseButton.Play("Outro_Pause_Button");
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(.5f);
         gameMenu.SetActive(true);
         pauseMenu.SetActive(false);
         playerController.pausing = false;
