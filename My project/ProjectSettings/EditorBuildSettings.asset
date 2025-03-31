@@ -15,4 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Tutorial/DrivingTutorial.unity
     guid: ac64c01b181eafd479de1743076f05ef
   m_configObjects:
+    com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: 1ded6d5b3a605eb4c9b263a8e3871b49, type: 2}
+    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 3ba5e83ed850c9c419441885510f565d, type: 2}
+    com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000, guid: 733fa4fce621d1f4b809c5d4d74d620e, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: 5a8cfe91aa8c9ed42a6e5814d247acc5, type: 2}

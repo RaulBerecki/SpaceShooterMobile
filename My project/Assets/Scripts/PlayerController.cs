@@ -5,7 +5,7 @@ using TMPro;
 using System.Drawing;
 public class PlayerController : MonoBehaviour
 {
-    Rigidbody2D rb;
+    public Rigidbody2D rb;
     public float speed,noFuelSpeed,rotationSpeed,noRotationSpeed;
     bool leftClicked,rightClicked;
     UI_ManagerController UI_ManagerController;
@@ -16,11 +16,11 @@ public class PlayerController : MonoBehaviour
     public GameObject bullet;
     public float timerToSet;
     float timer;
-    int bulletsAvailable;
+    public int bulletsAvailable;
     public bool playing,pausing,offGame,gameOver;
     public TextMeshProUGUI bulletsText;
     //TrailVariables
-    TrailRenderer trailRenderer;
+    public TrailRenderer trailRenderer;
     public float trailTimer;
     public int trailAvailable;
     public TextMeshProUGUI trailText;

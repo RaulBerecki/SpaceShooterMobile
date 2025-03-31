@@ -6,11 +6,13 @@ using TMPro;
 public class UI_ManagerController : MonoBehaviour
 {
     public Animator playButton, pauseButton,scoreText,highscoreText;
-    public GameObject pauseMenu,mainMenu,gameMenu,gameOverPanel;
+    public GameObject pauseMenu,mainMenu,gameMenu,gameOverPanel,adButton;
     public PlayerController playerController;
     public TextMeshProUGUI finalScoreText,highscoreTextUI;
     AudioSource uiAudioSource;
     public AudioClip buttonSound;
+    GameManagerScript gameManagerScript;
+    public RewardedAds rewardedAds;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,12 +22,16 @@ public class UI_ManagerController : MonoBehaviour
         gameOverPanel.SetActive(false);
         uiAudioSource = GetComponent<AudioSource>();
         highscoreTextUI.text=PlayerPrefs.GetInt("highscore").ToString();
+        gameManagerScript = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManagerScript>();
+        rewardedAds = GameObject.FindAnyObjectByType<RewardedAds>();
+        rewardedAds.gameManagerScript = gameManagerScript;
+        rewardedAds.uiManagerController = this;
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        
     }
     public void PlayGame()
     {
@@ -48,7 +54,7 @@ public class UI_ManagerController : MonoBehaviour
         playButton.Play("Outro_Play_Button");
         highscoreText.Play("Outro_Highscore");
         scoreText.Play("Start_ScoreText");
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(.5f);
         mainMenu.SetActive(false);
         gameMenu.SetActive(true);
         playerController.playing = true;
@@ -78,5 +84,13 @@ public class UI_ManagerController : MonoBehaviour
         finalScoreText.text = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManagerScript>().score.ToString("0");
         scoreText.Play("Idle_ScoreText");
         gameOverPanel.SetActive(true);
+        if (!gameManagerScript.AdSeen)
+            adButton.SetActive(true);
+        else
+            adButton.SetActive(false);
+    }
+    public void ShowAd()
+    {
+        rewardedAds.ShowRewardedAd();
     }
 }

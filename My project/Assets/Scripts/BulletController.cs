@@ -7,10 +7,12 @@ public class BulletController : MonoBehaviour
 {
     PlayerController playerController;
     Rigidbody2D rb;
+    GameManagerScript gameManagerScript;
     // Start is called before the first frame update
     void Start()
     {
         playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        gameManagerScript = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManagerScript>();
         rb = GetComponent<Rigidbody2D>();
     }
 
@@ -24,6 +26,10 @@ public class BulletController : MonoBehaviour
         else
         {
             rb.velocity = transform.up * 4;
+        }
+        if (gameManagerScript.AdCompleted)
+        {
+            Destroy(this.gameObject);
         }
     }
     private void OnBecameInvisible()

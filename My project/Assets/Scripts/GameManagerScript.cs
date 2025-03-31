@@ -13,6 +13,7 @@ public class GameManagerScript : MonoBehaviour
     public TextMeshProUGUI scoreText;
     AudioSource audioSource;
     public AudioClip scoreSound;
+    public bool AdCompleted, AdSeen;
     // Start is called before the first frame update
     void Start()
     {
@@ -25,6 +26,7 @@ public class GameManagerScript : MonoBehaviour
         lastScore = score = 0;
         timerAid = Random.RandomRange(5, 10);
         timerAid2 = Random.RandomRange(5, 10);
+        AdCompleted = AdSeen = false;
     }
 
     // Update is called once per frame
@@ -49,7 +51,29 @@ public class GameManagerScript : MonoBehaviour
                 PlayerPrefs.SetInt("highscore", (int)score);
             }
         }
+        if (AdCompleted && !AdSeen)
+        {
+            ReloadGameAfterAd();
+        }
         scoreText.text=score.ToString("0");
+    }
+    
+    void ReloadGameAfterAd()
+    {
+        playerController.gameOver = false;
+        playerController.playing = false;
+        playerController.rb.velocity = Vector2.zero;
+        playerController.rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        playerController.rb.constraints = RigidbodyConstraints2D.None;
+        playerController.transform.position = new Vector2(0,0);
+        playerController.trailRenderer.Clear();
+        playerController.transform.eulerAngles = new Vector3(0,0,0);
+        playerController.trailAvailable += 50;
+        playerController.bulletsAvailable += 50;
+        playerController.LeftButtonNotClicked();
+        playerController.RightButtonNotClicked();
+        AdCompleted = false;
+        AdSeen = true;
     }
     void GenerateAids()
     {

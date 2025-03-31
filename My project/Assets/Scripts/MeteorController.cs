@@ -37,6 +37,10 @@ public class MeteorController : MonoBehaviour
             rb.velocity = transform.up * 1.5f;
             animator.speed = 1;
         }
+        if(gameManagerScript.AdCompleted)
+        {
+            Destroy(this.gameObject);
+        }
     }
     public void HitMeteor(Transform currentTransform)
     {
