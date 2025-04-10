@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System.Drawing;
+using UnityEngine.SocialPlatforms.Impl;
 public class PlayerController : MonoBehaviour
 {
     public Rigidbody2D rb;
@@ -55,17 +56,17 @@ public class PlayerController : MonoBehaviour
             if(trailAvailable>0)
             {
                 trailRenderer.time = .35f;
-                rb.velocity = transform.up * speed;
+                rb.linearVelocity = transform.up * speed;
             }
             else
             {
                 trailRenderer.time = .2f;
-                rb.velocity = transform.up * 1f;
+                rb.linearVelocity = transform.up * 1f;
             }
             if (timer < 0 && bulletsAvailable > 0)
             {
                 GameObject bulletInstance = Instantiate(bullet, shootingPoint.position, shootingPoint.rotation);
-                bulletInstance.GetComponent<Rigidbody2D>().velocity = shootingPoint.up * 4;
+                bulletInstance.GetComponent<Rigidbody2D>().linearVelocity = shootingPoint.up * 4;
                 bulletsAvailable--;
                 timer = timerToSet;
                 audioSource1.clip = shooting;
@@ -84,7 +85,7 @@ public class PlayerController : MonoBehaviour
         }
         if (rightClicked && leftClicked && !pausing)
         {
-            rb.velocity = new Vector2(0, 0);
+            rb.linearVelocity = new Vector2(0, 0);
             pausing = true;
             UI_ManagerController.PauseGame();
             LeftButtonNotClicked();

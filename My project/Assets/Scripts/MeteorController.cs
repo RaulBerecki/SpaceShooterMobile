@@ -29,12 +29,12 @@ public class MeteorController : MonoBehaviour
         }
         if (playerController.pausing)
         {
-            rb.velocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
             animator.speed = 0;
         }
         else
         {
-            rb.velocity = transform.up * 1.5f;
+            rb.linearVelocity = transform.up * 1.5f;
             animator.speed = 1;
         }
         if(gameManagerScript.AdCompleted)
@@ -48,11 +48,11 @@ public class MeteorController : MonoBehaviour
         {
             GameObject smallMeteor = Instantiate(gameManagerScript.smallMeteor, currentTransform.position, currentTransform.rotation);
             Vector3 newDirection = Quaternion.Euler(0, 0, Random.RandomRange(-15,15)) * smallMeteor.transform.up;
-            smallMeteor.GetComponent<MeteorController>().rb.velocity = newDirection * 1.5f;
+            smallMeteor.GetComponent<MeteorController>().rb.linearVelocity = newDirection * 1.5f;
         }
         else
         {
-            int choice = Random.RandomRange(0, 5);
+            int choice = Random.RandomRange(0, 3);
             if (choice == 0)
             {
                 GameObject aid = Instantiate(gameManagerScript.bulletAid, currentTransform.position, currentTransform.rotation);

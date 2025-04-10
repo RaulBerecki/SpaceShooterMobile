@@ -41,7 +41,7 @@ public class DrivingTutorialController : MonoBehaviour
             if(timer < 0) {
                 stage++;
             }
-            rb.velocity = new Vector2(0, 0);
+            rb.linearVelocity = new Vector2(0, 0);
         }
         if(stage == 1)
         {
@@ -57,7 +57,7 @@ public class DrivingTutorialController : MonoBehaviour
         {
             if (leftClicked)
             {
-                rb.velocity = transform.up * 1.5f;
+                rb.linearVelocity = transform.up * 1.5f;
                 transform.Rotate(new Vector3(0, 0, 1) * 2f);
             }
             else
@@ -81,26 +81,26 @@ public class DrivingTutorialController : MonoBehaviour
         {
             if (rightClicked)
             {
-                rb.velocity = transform.up * 1.5f;
+                rb.linearVelocity = transform.up * 1.5f;
                 transform.Rotate(-new Vector3(0, 0, 1) * 2f);
             }
             else
             {
-                rb.velocity = new Vector2(0, 0);
+                rb.linearVelocity = new Vector2(0, 0);
                 stage++;
             }
         }
         if(stage == 5)
         {
             textTutorial.text= lines[3];
-            rb.velocity = transform.up * 1.5f;
+            rb.linearVelocity = transform.up * 1.5f;
             rightButton.Play("BlinkingButton");
             leftButton.Play("BlinkingButton");
             if(leftClicked && rightClicked)
             {
                 rightButton.Play("IdleButton");
                 leftButton.Play("IdleButton");
-                rb.velocity = new Vector2(0, 0);
+                rb.linearVelocity = new Vector2(0, 0);
                 stage++;
             }
         }

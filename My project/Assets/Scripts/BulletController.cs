@@ -21,11 +21,11 @@ public class BulletController : MonoBehaviour
     {
         if (playerController.pausing)
         {
-            rb.velocity=new Vector2 (0,0);
+            rb.linearVelocity=new Vector2 (0,0);
         }
         else
         {
-            rb.velocity = transform.up * 4;
+            rb.linearVelocity = transform.up * 4;
         }
         if (gameManagerScript.AdCompleted)
         {

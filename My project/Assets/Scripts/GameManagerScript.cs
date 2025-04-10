@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using GooglePlayGames;
 
 public class GameManagerScript : MonoBehaviour
 {
@@ -49,6 +50,10 @@ public class GameManagerScript : MonoBehaviour
             if (PlayerPrefs.GetInt("highscore") < (int)score)
             {
                 PlayerPrefs.SetInt("highscore", (int)score);
+                PlayGamesPlatform.Instance.ReportScore((int)score, "CgkIsKb_vv4SEAIQAQ", (bool success) =>
+                {
+                    Debug.Log(success ? "Score submitted!" : "Failed to submit score.");
+                });
             }
         }
         if (AdCompleted && !AdSeen)
@@ -62,7 +67,7 @@ public class GameManagerScript : MonoBehaviour
     {
         playerController.gameOver = false;
         playerController.playing = false;
-        playerController.rb.velocity = Vector2.zero;
+        playerController.rb.linearVelocity = Vector2.zero;
         playerController.rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         playerController.rb.constraints = RigidbodyConstraints2D.None;
         playerController.transform.position = new Vector2(0,0);
@@ -174,7 +179,7 @@ public class GameManagerScript : MonoBehaviour
                     meteor.GetComponent<MeteorController>().animator.Play("RightRotatingLargeMeteor");
                 }
             }
-            meteor.GetComponent<MeteorController>().rb.velocity = meteor.transform.up * 1.5f;
+            meteor.GetComponent<MeteorController>().rb.linearVelocity = meteor.transform.up * 1.5f;
             timerLeft = Random.RandomRange(2, 6);
         }
         if (timerRight < 0)
@@ -209,7 +214,7 @@ public class GameManagerScript : MonoBehaviour
                     meteor.GetComponent<MeteorController>().animator.Play("RightRotatingLargeMeteor");
                 }
             }
-            meteor.GetComponent<MeteorController>().rb.velocity = meteor.transform.up * 1.5f;
+            meteor.GetComponent<MeteorController>().rb.linearVelocity = meteor.transform.up * 1.5f;
             timerRight = Random.RandomRange(2, 6);
         }
         if (timerUp < 0)
@@ -244,7 +249,7 @@ public class GameManagerScript : MonoBehaviour
                     meteor.GetComponent<MeteorController>().animator.Play("RightRotatingLargeMeteor");
                 }
             }
-            meteor.GetComponent<MeteorController>().rb.velocity = meteor.transform.up * 1.5f;
+            meteor.GetComponent<MeteorController>().rb.linearVelocity = meteor.transform.up * 1.5f;
             timerUp = Random.RandomRange(2, 6);
         }
         if (timerDown < 0)
@@ -279,7 +284,7 @@ public class GameManagerScript : MonoBehaviour
                     meteor.GetComponent<MeteorController>().animator.Play("RightRotatingLargeMeteor");
                 }
             }
-            meteor.GetComponent<MeteorController>().rb.velocity = meteor.transform.up * 1.5f;
+            meteor.GetComponent<MeteorController>().rb.linearVelocity = meteor.transform.up * 1.5f;
             timerDown = Random.RandomRange(2, 6);
         }
     }

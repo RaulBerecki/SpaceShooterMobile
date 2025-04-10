@@ -2,11 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SocialPlatforms.Impl;
+using GooglePlayGames;
+using GooglePlayGames.BasicApi;
+using UnityEngine.SocialPlatforms;
 
 public class UI_ManagerController : MonoBehaviour
 {
     public Animator playButton, pauseButton,scoreText,highscoreText;
-    public GameObject pauseMenu,mainMenu,gameMenu,gameOverPanel,adButton;
+    public GameObject pauseMenu,mainMenu,gameMenu,gameOverPanel,adButton,leaderboardPanel;
+    public TextMeshProUGUI[] highscoreTexts;
     public PlayerController playerController;
     public TextMeshProUGUI finalScoreText,highscoreTextUI;
     AudioSource uiAudioSource;
@@ -49,6 +54,60 @@ public class UI_ManagerController : MonoBehaviour
         uiAudioSource.Play();
         StartCoroutine(BackToPlay());
     }
+    public void MenuBack()
+    {
+        leaderboardPanel.SetActive(false);
+        mainMenu.SetActive(true);
+    }
+    public void ShowLeaderboardUI()
+    {
+        //PlayGamesPlatform.Instance.ShowLeaderboardUI();
+
+        PlayGamesPlatform.Instance.LoadScores(
+            "CgkIsKb_vv4SEAIQAQ",
+            LeaderboardStart.TopScores,
+            10,
+            LeaderboardCollection.Public,
+            LeaderboardTimeSpan.AllTime,
+            (data) =>
+            {
+                if (data.Valid)
+                {
+                    IScore[] scores = data.Scores;
+
+                    // Extract user IDs
+                    string[] userIds = new string[scores.Length];
+                    for (int i = 0; i < scores.Length; i++)
+                    {
+                        userIds[i] = scores[i].userID;
+                    }
+
+                    // Load player display names
+                    Social.LoadUsers(userIds, (IUserProfile[] users) =>
+                    {
+                        for (int i = 0; i < highscoreTexts.Length; i++)
+                        {
+                            if (i < scores.Length)
+                            {
+                                string displayName = users[i].userName;
+                                highscoreTexts[i].text = $"{i + 1}. {displayName}: {scores[i].value}";
+                            }
+                            else
+                            {
+                                highscoreTexts[i].text = $"{i + 1}. ---";
+                            }
+                        }
+                    });
+                    mainMenu.SetActive(false);
+                    leaderboardPanel.SetActive(true);
+                }
+                else
+                {
+                    Debug.Log("Failed to load leaderboard.");
+                }
+            });
+    }
+
     IEnumerator Play()
     {
         playButton.Play("Outro_Play_Button");

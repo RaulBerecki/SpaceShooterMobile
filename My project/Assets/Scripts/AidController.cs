@@ -24,11 +24,11 @@ public class AidController : MonoBehaviour
         }
         if (playerController.pausing)
         {
-            rb.velocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
         }
         else
         {
-            rb.velocity = transform.up * 0.5f;
+            rb.linearVelocity = transform.up * 0.5f;
         }
     }
 }
