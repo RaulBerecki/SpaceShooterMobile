@@ -18,6 +18,8 @@ public class UI_ManagerController : MonoBehaviour
     public AudioClip buttonSound;
     GameManagerScript gameManagerScript;
     public RewardedAds rewardedAds;
+    DatabaseController databaseController;
+    public string[] highscoreTextSaver;
     // Start is called before the first frame update
     void Start()
     {
@@ -28,6 +30,8 @@ public class UI_ManagerController : MonoBehaviour
         uiAudioSource = GetComponent<AudioSource>();
         highscoreTextUI.text=PlayerPrefs.GetInt("highscore").ToString();
         gameManagerScript = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManagerScript>();
+        databaseController = GameObject.FindGameObjectWithTag("Database").GetComponent<DatabaseController>();
+        databaseController.uiController = this;
         rewardedAds = GameObject.FindAnyObjectByType<RewardedAds>();
         rewardedAds.gameManagerScript = gameManagerScript;
         rewardedAds.uiManagerController = this;
@@ -61,51 +65,7 @@ public class UI_ManagerController : MonoBehaviour
     }
     public void ShowLeaderboardUI()
     {
-        //PlayGamesPlatform.Instance.ShowLeaderboardUI();
-
-        PlayGamesPlatform.Instance.LoadScores(
-            "CgkIsKb_vv4SEAIQAQ",
-            LeaderboardStart.TopScores,
-            10,
-            LeaderboardCollection.Public,
-            LeaderboardTimeSpan.AllTime,
-            (data) =>
-            {
-                if (data.Valid)
-                {
-                    IScore[] scores = data.Scores;
-
-                    // Extract user IDs
-                    string[] userIds = new string[scores.Length];
-                    for (int i = 0; i < scores.Length; i++)
-                    {
-                        userIds[i] = scores[i].userID;
-                    }
-
-                    // Load player display names
-                    Social.LoadUsers(userIds, (IUserProfile[] users) =>
-                    {
-                        for (int i = 0; i < highscoreTexts.Length; i++)
-                        {
-                            if (i < scores.Length)
-                            {
-                                string displayName = users[i].userName;
-                                highscoreTexts[i].text = $"{i + 1}. {displayName}: {scores[i].value}";
-                            }
-                            else
-                            {
-                                highscoreTexts[i].text = $"{i + 1}. ---";
-                            }
-                        }
-                    });
-                    mainMenu.SetActive(false);
-                    leaderboardPanel.SetActive(true);
-                }
-                else
-                {
-                    Debug.Log("Failed to load leaderboard.");
-                }
-            });
+        databaseController.GetTop10();
     }
 
     IEnumerator Play()

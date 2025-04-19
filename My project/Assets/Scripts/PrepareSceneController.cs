@@ -12,59 +12,31 @@ public class PrepareSceneController : MonoBehaviour
 {
     public TextMeshProUGUI debugText;
     public GameObject button;
+    public DatabaseController databaseController;
     // Start is called before the first frame update
     void Start()
     {
+        databaseController = GameObject.FindGameObjectWithTag("Database").GetComponent<DatabaseController>();
+        //databaseController.BeginDatabase("A_21r32tef", "Raul");
         SignIn();
+    }
+    private void Update()
+    {
+        
     }
     public void SignIn()
     {
-        button.SetActive(false);
         PlayGamesPlatform.Activate();
         Social.localUser.Authenticate((success) =>
         {
             if (success)
             {
-                PlayGamesPlatform.Instance.LoadScores(
-            "CgkIsKb_vv4SEAIQAQ",
-            LeaderboardStart.PlayerCentered,
-            1,
-            LeaderboardCollection.Public,
-            LeaderboardTimeSpan.AllTime,
-            (data) =>
-            {
-                if (data.Valid)
-                {
-                    IScore myScore = data.PlayerScore;
-                    if (myScore != null && myScore.value > 0)
-                    {
-                        // Save to PlayerPrefs
-                        PlayerPrefs.SetInt("highscore", (int)myScore.value);
-                        PlayerPrefs.Save();
-                        Application.LoadLevel("SampleScene");
-                    }
-                    else
-                    {
-                        PlayGamesPlatform.Instance.ReportScore(0, "CgkIsKb_vv4SEAIQAQ", success =>
-                        {
-                            Debug.Log(success ? "Initial score submitted." : "Failed to submit initial score.");
-                        });
-                        PlayerPrefs.SetInt("highscore", 0);
-                        PlayerPrefs.Save();
-                        Application.LoadLevel("DrivingTutorial");
-                    }
-                }
-                else
-                {
-                    Debug.LogError("Failed to load player score.");
-                }
-            });       
+                databaseController.BeginDatabase(Social.localUser.id,Social.localUser.userName);
             }
             else
             {
-                debugText.text = "Not logged in";
-                button.SetActive(true);
+                Debug.LogError("Failed to load player score.");
             }
-        });
+            });       
     }
 }

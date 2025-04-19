@@ -6,6 +6,7 @@ using GooglePlayGames;
 
 public class GameManagerScript : MonoBehaviour
 {
+    private const string idTest = "A_21r32tef";
     public float timerLeft, timerRight,timerUp,timerDown,timerAid,timerAid2;
     public GameObject largeMeteor, smallMeteor,bulletAid,fuelAid;
     public GameObject[] spawnPoints;
@@ -15,6 +16,7 @@ public class GameManagerScript : MonoBehaviour
     AudioSource audioSource;
     public AudioClip scoreSound;
     public bool AdCompleted, AdSeen;
+    DatabaseController databaseController;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,6 +26,7 @@ public class GameManagerScript : MonoBehaviour
         timerUp = 2;
         timerDown = 2;
         playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        databaseController = GameObject.FindGameObjectWithTag("Database").GetComponent<DatabaseController>();
         lastScore = score = 0;
         timerAid = Random.RandomRange(5, 10);
         timerAid2 = Random.RandomRange(5, 10);
@@ -50,10 +53,7 @@ public class GameManagerScript : MonoBehaviour
             if (PlayerPrefs.GetInt("highscore") < (int)score)
             {
                 PlayerPrefs.SetInt("highscore", (int)score);
-                PlayGamesPlatform.Instance.ReportScore((int)score, "CgkIsKb_vv4SEAIQAQ", (bool success) =>
-                {
-                    Debug.Log(success ? "Score submitted!" : "Failed to submit score.");
-                });
+                databaseController.UpdateHighscore(Social.localUser.id, (int)score);
             }
         }
         if (AdCompleted && !AdSeen)
