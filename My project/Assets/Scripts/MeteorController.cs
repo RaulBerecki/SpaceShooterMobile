@@ -11,6 +11,7 @@ public class MeteorController : MonoBehaviour
     float timer;
     GameManagerScript gameManagerScript;
     PlayerController playerController;
+    public GameObject explosionEffect;
     // Start is called before the first frame update
     void Start()
     {
@@ -44,6 +45,7 @@ public class MeteorController : MonoBehaviour
     }
     public void HitMeteor(Transform currentTransform)
     {
+        Instantiate(explosionEffect, currentTransform.position, currentTransform.rotation);
         if (isLarge)
         {
             GameObject smallMeteor = Instantiate(gameManagerScript.smallMeteor, currentTransform.position, currentTransform.rotation);
@@ -59,7 +61,7 @@ public class MeteorController : MonoBehaviour
                 Vector3 newDirection = Quaternion.Euler(0, 0, Random.RandomRange(-15, 15)) * aid.transform.up;
                 aid.GetComponent<Transform>().eulerAngles = newDirection;
             }
-            if(choice == 1)
+            if (choice == 1)
             {
                 GameObject aid = Instantiate(gameManagerScript.fuelAid, currentTransform.position, currentTransform.rotation);
                 Vector3 newDirection = Quaternion.Euler(0, 0, Random.RandomRange(-15, 15)) * aid.transform.up;

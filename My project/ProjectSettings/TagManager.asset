@@ -11,6 +11,11 @@ TagManager:
   - aidBullet
   - fuelAid
   - Database
+  - AidMagnet
+  - ShootingPowerUnlimited
+  - FuelPowerUnlimited
+  - Shield
+  - ShieldPower
   layers:
   - Default
   - TransparentFX

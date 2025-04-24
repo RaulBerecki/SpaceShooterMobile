@@ -7,9 +7,9 @@ using GooglePlayGames;
 public class GameManagerScript : MonoBehaviour
 {
     private const string idTest = "A_21r32tef";
-    public float timerLeft, timerRight,timerUp,timerDown,timerAid,timerAid2;
+    public float timerLeft, timerRight,timerUp,timerDown,timerAid,timerAid2,timerPower;
     public GameObject largeMeteor, smallMeteor,bulletAid,fuelAid;
-    public GameObject[] spawnPoints;
+    public GameObject[] spawnPoints,powers;
     PlayerController playerController;
     public float score,lastScore;
     public TextMeshProUGUI scoreText;
@@ -30,6 +30,7 @@ public class GameManagerScript : MonoBehaviour
         lastScore = score = 0;
         timerAid = Random.RandomRange(5, 10);
         timerAid2 = Random.RandomRange(5, 10);
+        timerPower = Random.RandomRange(10, 20);
         AdCompleted = AdSeen = false;
     }
 
@@ -40,6 +41,7 @@ public class GameManagerScript : MonoBehaviour
         {
             GenerateMeteors();
             GenerateAids();
+            GeneratePowers();
             score += Time.deltaTime;
         }
         if ((int)score / 200 > (int)lastScore / 200)
@@ -80,6 +82,39 @@ public class GameManagerScript : MonoBehaviour
         AdCompleted = false;
         AdSeen = true;
     }
+    void GeneratePowers()
+    {
+        timerPower-=Time.deltaTime;
+        if(timerPower < 0 )
+        {
+            int choice = Random.Range(0, 4);
+            GameObject aid;
+            float angleChange = Random.RandomRange(-15, 15);
+            float coordChange = Random.RandomRange(-6, 6);
+            int choicePower = Random.Range(0, powers.Length);
+            if (choice == 0)
+            {
+                aid = Instantiate(powers[choicePower], spawnPoints[0].transform.position + new Vector3(0, coordChange, 0), spawnPoints[0].transform.rotation);
+                aid.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+            }
+            else if (choice == 1)
+            {
+                aid = Instantiate(powers[choicePower], spawnPoints[1].transform.position + new Vector3(0, coordChange, 0), spawnPoints[1].transform.rotation);
+                aid.transform.eulerAngles = new Vector3(0, 0, 90 + angleChange);
+            }
+            else if (choice == 2)
+            {
+                aid = Instantiate(powers[choicePower], spawnPoints[2].transform.position + new Vector3(coordChange, 0, 0), spawnPoints[2].transform.rotation);
+                aid.transform.eulerAngles = new Vector3(0, 0, -180 + angleChange);
+            }
+            else
+            {
+                aid = Instantiate(powers[choicePower], spawnPoints[3].transform.position + new Vector3(coordChange, 0, 0), spawnPoints[3].transform.rotation);
+                aid.transform.eulerAngles = new Vector3(0, 0, 0 + angleChange);
+            }
+            timerPower = Random.RandomRange(20, 30);
+        }
+    }
     void GenerateAids()
     {
         timerAid -= Time.deltaTime;
@@ -98,17 +133,17 @@ public class GameManagerScript : MonoBehaviour
             else if (choice == 1)
             {
                 aid = Instantiate(bulletAid, spawnPoints[1].transform.position + new Vector3(0, coordChange, 0), spawnPoints[1].transform.rotation);
-                aid.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+                aid.transform.eulerAngles = new Vector3(0, 0, 90 + angleChange);
             }
             else if (choice == 2)
             {
                 aid = Instantiate(bulletAid, spawnPoints[2].transform.position + new Vector3(coordChange, 0, 0), spawnPoints[2].transform.rotation);
-                aid.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+                aid.transform.eulerAngles = new Vector3(0, 0, -180 + angleChange);
             }
             else
             {
                 aid = Instantiate(bulletAid, spawnPoints[3].transform.position + new Vector3(coordChange, 0, 0), spawnPoints[3].transform.rotation);
-                aid.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+                aid.transform.eulerAngles = new Vector3(0, 0, 0 + angleChange);
             }
             timerAid = Random.RandomRange(3, 8);
         }
@@ -126,17 +161,17 @@ public class GameManagerScript : MonoBehaviour
             else if (choice == 1)
             {
                 aid = Instantiate(fuelAid, spawnPoints[1].transform.position + new Vector3(0, coordChange, 0), spawnPoints[1].transform.rotation);
-                aid.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+                aid.transform.eulerAngles = new Vector3(0, 0, 90 + angleChange);
             }
             else if (choice == 2)
             {
                 aid = Instantiate(fuelAid, spawnPoints[2].transform.position + new Vector3(coordChange, 0, 0), spawnPoints[2].transform.rotation);
-                aid.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+                aid.transform.eulerAngles = new Vector3(0, 0, -180 + angleChange);
             }
             else
             {
                 aid = Instantiate(fuelAid, spawnPoints[3].transform.position + new Vector3(coordChange, 0, 0), spawnPoints[3].transform.rotation);
-                aid.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+                aid.transform.eulerAngles = new Vector3(0, 0, 0 + angleChange);
             }
             timerAid2 = Random.RandomRange(3, 8);
         }

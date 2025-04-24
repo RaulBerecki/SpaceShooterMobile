@@ -1,6 +1,6 @@
 # ninja log v5
-0	157	7664895128597379	build.ninja	7b247d88ab4ea79c
-1	199	7664893742570666	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	ac750cf69d9730c
-199	420	7664893744812892	D:/UnityProjects/SpaceShooterMobile/My project/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/67703e3v/obj/armeabi-v7a/libswappywrapper.so	103612d623013a62
-2	155	7664895131758179	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	ac750cf69d9730c
-155	247	7664895132707121	D:/UnityProjects/SpaceShooterMobile/My project/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/67703e3v/obj/armeabi-v7a/libswappywrapper.so	103612d623013a62
+0	157	7672094142827624	build.ninja	7b247d88ab4ea79c
+1	153	7671323403941274	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	ac750cf69d9730c
+153	270	7671323405133354	D:/UnityProjects/SpaceShooterMobile/My project/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/67703e3v/obj/armeabi-v7a/libswappywrapper.so	103612d623013a62
+3	247	7672094149010659	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	ac750cf69d9730c
+247	402	7672094150574171	D:/UnityProjects/SpaceShooterMobile/My project/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/67703e3v/obj/armeabi-v7a/libswappywrapper.so	103612d623013a62

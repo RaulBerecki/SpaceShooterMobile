@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
     UI_ManagerController UI_ManagerController;
     public AudioSource audioSource1,audioSource2;
     public AudioClip shooting,gameOverSound,collectSound;
+    Animator animator;
+    CircleCollider2D circleCollider;
     //Shooting Variables
     public Transform shootingPoint;
     public GameObject bullet;
@@ -25,11 +27,17 @@ public class PlayerController : MonoBehaviour
     public float trailTimer;
     public int trailAvailable;
     public TextMeshProUGUI trailText;
+    //Superpowers
+    public bool aidMagnet,shootingUnlimited,fuelUnlimited,shield;
+    public float shootingUnlimitedTimer,doubleSpeed;
+    public float timerPower;
     // Start is called before the first frame update
     void Start()
     {
         rb=GetComponent<Rigidbody2D>();
         trailRenderer = GetComponent<TrailRenderer>();
+        animator = GetComponent<Animator>();
+        circleCollider = GetComponent<CircleCollider2D>();
         UI_ManagerController = GameObject.FindGameObjectWithTag("UIManager").GetComponent<UI_ManagerController>();
         timer = 0;
         trailTimer = .5f;
@@ -39,6 +47,9 @@ public class PlayerController : MonoBehaviour
         noRotationSpeed = rotationSpeed / 2;
         trailRenderer.startWidth = .15f;
         trailRenderer.endWidth = .15f;
+        aidMagnet = shootingUnlimited = false;
+        shootingUnlimitedTimer = timerToSet / 2f;
+        doubleSpeed = speed * 1.5f;
     }
 
     // Update is called once per frame
@@ -46,17 +57,44 @@ public class PlayerController : MonoBehaviour
     {
         if(playing && !pausing)
         {
+            Animations();
+            if (fuelUnlimited)
+            {
+                trailRenderer.startColor = new Color32(0, 206, 209, 255);
+                trailRenderer.endColor = new Color32(0, 206, 209, 0);
+            }
+            else
+            {
+                trailRenderer.startColor = new Color32(120,48,253, 255);
+                trailRenderer.endColor = new Color32(120, 48, 253, 0);   
+            }
+            if(shield)
+                circleCollider.radius = .4f;
+            else
+                circleCollider.radius = .12f;
             timer -= Time.deltaTime;
             trailTimer -= Time.deltaTime;
+            timerPower-= Time.deltaTime;
+            if (timerPower <= 0)
+            {
+                aidMagnet=false;
+                shootingUnlimited=false;
+                fuelUnlimited=false;
+                shield = false;
+            }
             if (trailTimer < 0 && trailAvailable >0)
             {
-                trailAvailable--;
+                if(!fuelUnlimited)
+                    trailAvailable--;
                 trailTimer = 0.5f;
             }
             if(trailAvailable>0)
             {
                 trailRenderer.time = .35f;
-                rb.linearVelocity = transform.up * speed;
+                if (fuelUnlimited)
+                    rb.linearVelocity = transform.up * doubleSpeed;
+                else
+                    rb.linearVelocity = transform.up * speed;
             }
             else
             {
@@ -67,8 +105,15 @@ public class PlayerController : MonoBehaviour
             {
                 GameObject bulletInstance = Instantiate(bullet, shootingPoint.position, shootingPoint.rotation);
                 bulletInstance.GetComponent<Rigidbody2D>().linearVelocity = shootingPoint.up * 4;
-                bulletsAvailable--;
-                timer = timerToSet;
+                if(!shootingUnlimited)
+                {
+                    bulletsAvailable--;
+                    timer = timerToSet;
+                }
+                else
+                {
+                    timer = shootingUnlimitedTimer;
+                }
                 audioSource1.clip = shooting;
                 audioSource1.Play();
             }
@@ -92,6 +137,15 @@ public class PlayerController : MonoBehaviour
             RightButtonNotClicked();
         }
     }
+    void Animations()
+    {
+        if (aidMagnet && !shield)
+            animator.Play("MagnetEffect");
+        else if (!aidMagnet && shield)
+            animator.Play("ShieldOn");
+        else
+            animator.Play("Idle");
+    }
     public void LeftButtonClicked() { 
         leftClicked = true;
     }
@@ -111,11 +165,22 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("meteor") && playing)
         {
-            playing = false;
-            audioSource1.clip = gameOverSound;
-            audioSource1.Play();
-            gameOver = true;
-            UI_ManagerController.GameOver();
+            Debug.Log("hit");
+            if(shield)
+            {
+                rb.linearVelocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+                collision.gameObject.GetComponent<MeteorCollisionCatcher>().MeteorController.HitMeteor(collision.gameObject.transform);
+                shield = false;
+            }
+            else
+            {
+                playing = false;
+                audioSource1.clip = gameOverSound;
+                audioSource1.Play();
+                gameOver = true;
+                UI_ManagerController.GameOver();
+            }
         }
         
     }
@@ -133,6 +198,42 @@ public class PlayerController : MonoBehaviour
             trailAvailable += 10;
             audioSource2.clip = collectSound;
             audioSource2.Play();
+            Destroy(other.gameObject);
+        }
+        if (other.gameObject.CompareTag("AidMagnet"))
+        {
+            timerPower = 30;
+            aidMagnet = true;
+            shootingUnlimited = false;
+            fuelUnlimited = false;
+            shield = false;
+            Destroy(other.gameObject);
+        }
+        if (other.gameObject.CompareTag("ShootingPowerUnlimited"))
+        {
+            timerPower = 30;
+            aidMagnet = false;
+            shootingUnlimited = true;
+            fuelUnlimited = false;
+            shield = false;
+            Destroy(other.gameObject);
+        }
+        if (other.gameObject.CompareTag("FuelPowerUnlimited"))
+        {
+            timerPower = 30;
+            aidMagnet = false;
+            shootingUnlimited = false;
+            fuelUnlimited = true;
+            shield = false;
+            Destroy(other.gameObject);
+        }
+        if (other.gameObject.CompareTag("ShieldPower"))
+        {
+            timerPower = 30;
+            aidMagnet = false;
+            shootingUnlimited = false;
+            fuelUnlimited = false;
+            shield = true;
             Destroy(other.gameObject);
         }
     }
