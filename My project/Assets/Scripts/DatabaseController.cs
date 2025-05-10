@@ -16,6 +16,7 @@ public class DatabaseController : MonoBehaviour
     public TextMeshProUGUI debugText;
     string supabaseUrl = "https://molvqetyggsjxjcmakzv.supabase.co";
     string supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vbHZxZXR5Z2dzanhqY21ha3p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ2MTgyNDUsImV4cCI6MjA2MDE5NDI0NX0.KngYnTcLcTjip3qi51gKUXzGaMseZZ3o4Q9T1LoSwQM";
+    public GameObject updatePanel;
     private void Awake()
     {
         if (instance == null)
@@ -58,24 +59,42 @@ public class DatabaseController : MonoBehaviour
         yield return request.SendWebRequest();
         if (request.result == UnityWebRequest.Result.Success)
         {
-            string jsonResponse = request.downloadHandler.text;
+            string jsonResponse1 = request.downloadHandler.text;
+            string url2 = "https://molvqetyggsjxjcmakzv.supabase.co/rest/v1/gameDetails";
 
-            // Check if any user was found
-            if (jsonResponse == "[]")
+            UnityWebRequest request2 = UnityWebRequest.Get(url2);
+            request2.SetRequestHeader("apikey", supabaseKey);
+            request2.SetRequestHeader("Authorization", "Bearer " + supabaseKey);
+            request2.SetRequestHeader("Accept", "application/json");
+            
+            yield return request2.SendWebRequest();
+            if(request2.result == UnityWebRequest.Result.Success)
             {
-                StartCoroutine(SaveUserData(userId,username));
-            }
-            else
-            {
-                var users = JsonConvert.DeserializeObject<List<User>>(jsonResponse);
-                if (!PlayerPrefs.HasKey("highscore"))
+                string jsonResponse2 = request2.downloadHandler.text;
+                var game = JsonConvert.DeserializeObject<List<GameDetail>>(jsonResponse2);
+                if (game[0].gameVersion == Application.version)
                 {
-                    PlayerPrefs.SetInt("highscore", users[0].highscore);
+                    if (jsonResponse1 == "[]")
+                    {
+                        StartCoroutine(SaveUserData(userId, username));
+                    }
+                    else
+                    {
+                        var users = JsonConvert.DeserializeObject<List<User>>(jsonResponse1);
+                        if (!PlayerPrefs.HasKey("highscore"))
+                        {
+                            PlayerPrefs.SetInt("highscore", users[0].highscore);
+                        }
+                        Application.LoadLevel("SampleScene");
+                        Debug.Log("User ID exists!");
+                        Debug.Log("Response: " + users[0].highscore);
+                    }
                 }
-                Application.LoadLevel("SampleScene");
-                Debug.Log("User ID exists!");
-                Debug.Log("Response: " + users[0].highscore);
-            }
+                else
+                {
+                    updatePanel.SetActive(true);
+                }
+            }         
         }
         else
         {
@@ -159,7 +178,16 @@ public class DatabaseController : MonoBehaviour
             var users = JsonConvert.DeserializeObject <List<User>>(json);
             for(int i = 0; i < users.Count; i++)
             {
-                uiController.highscoreTexts[i].text= (i + 1).ToString() + "." + users[i].username+" " + users[i].highscore;
+                if (users[i].id==Social.localUser.id)
+                {
+                    uiController.highscoreTexts[i].text = (i + 1).ToString() + "." + users[i].username + " " + users[i].highscore;
+                    uiController.highscoreTexts[i].color = new Color32(128, 255, 255, 255);
+                }
+                else
+                {
+                    uiController.highscoreTexts[i].text = (i + 1).ToString() + "." + users[i].username + " " + users[i].highscore;
+                    uiController.highscoreTexts[i].color = Color.white;
+                }
             }
             uiController.leaderboardPanel.SetActive(true);
             uiController.mainMenu.SetActive(false);

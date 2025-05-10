@@ -201,7 +201,7 @@ GameObject:
   - component: {fileID: 5442004700803489815}
   m_Layer: 9
   m_Name: BigMeteor
-  m_TagString: meteor
+  m_TagString: meteorManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -238,6 +238,7 @@ MonoBehaviour:
   isLarge: 1
   animator: {fileID: 5442004700803489815}
   explosionEffect: {fileID: 3249146584100059146, guid: 9b90d43f42446a34b9ec12778da646df, type: 3}
+  pointsEffect: {fileID: 8021020166479185742, guid: d9befe592d957ad4d9e642368fed9789, type: 3}
 --- !u!95 &5442004700803489815
 Animator:
   serializedVersion: 7

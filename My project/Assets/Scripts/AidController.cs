@@ -20,7 +20,6 @@ public class AidController : MonoBehaviour
     void FixedUpdate()
     {
         image.transform.eulerAngles = new Vector3(0,0,0);
-        timer -= Time.deltaTime;
         if (timer < 0)
         {
             Destroy(this.gameObject);
@@ -34,13 +33,15 @@ public class AidController : MonoBehaviour
             if(playerController.aidMagnet)
             {
                 Vector2 direction = ((Vector2)playerController.transform.position - rb.position).normalized;
-                Vector2 newPosition = rb.position + direction * 1f * Time.fixedDeltaTime;
+                Vector2 newPosition = rb.position + direction * 2f * Time.fixedDeltaTime;
 
                 rb.MovePosition(newPosition);
+                timer = 40;
             }
             else
             {
                 rb.linearVelocity = transform.up * 0.5f;
+                timer -= Time.deltaTime;
             }
         }
     }

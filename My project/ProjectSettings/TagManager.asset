@@ -16,6 +16,9 @@ TagManager:
   - FuelPowerUnlimited
   - Shield
   - ShieldPower
+  - AdManager
+  - DestroyAllPowerUp
+  - meteorManager
   layers:
   - Default
   - TransparentFX

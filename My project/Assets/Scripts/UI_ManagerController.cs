@@ -10,7 +10,7 @@ using UnityEngine.SocialPlatforms;
 public class UI_ManagerController : MonoBehaviour
 {
     public Animator playButton, pauseButton,scoreText,highscoreText;
-    public GameObject pauseMenu,mainMenu,gameMenu,gameOverPanel,adButton,leaderboardPanel;
+    public GameObject pauseMenu,mainMenu,gameMenu,gameOverPanel,leaderboardPanel;
     public TextMeshProUGUI[] highscoreTexts;
     public PlayerController playerController;
     public TextMeshProUGUI finalScoreText,highscoreTextUI;
@@ -20,6 +20,11 @@ public class UI_ManagerController : MonoBehaviour
     public RewardedAds rewardedAds;
     DatabaseController databaseController;
     public string[] highscoreTextSaver;
+    //GameOver
+    public float timerShowAd;
+    public bool gameOver;
+    public TextMeshProUGUI timerShowAdText;
+    public GameObject showAdPanel, RestartPanel;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,15 +37,27 @@ public class UI_ManagerController : MonoBehaviour
         gameManagerScript = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManagerScript>();
         databaseController = GameObject.FindGameObjectWithTag("Database").GetComponent<DatabaseController>();
         databaseController.uiController = this;
-        rewardedAds = GameObject.FindAnyObjectByType<RewardedAds>();
+        rewardedAds = GameObject.FindGameObjectWithTag("AdManager").GetComponent<RewardedAds>();
         rewardedAds.gameManagerScript = gameManagerScript;
         rewardedAds.uiManagerController = this;
+        timerShowAd = 5f;
+        gameOver = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(gameOver)
+        {
+            timerShowAd -= Time.deltaTime;
+            timerShowAdText.text = timerShowAd.ToString("0");
+            if(timerShowAd < 0)
+            {
+                showAdPanel.SetActive(false);
+                RestartPanel.SetActive(true);
+                gameOver = false;
+            }
+        }
     }
     public void PlayGame()
     {
@@ -104,9 +121,16 @@ public class UI_ManagerController : MonoBehaviour
         scoreText.Play("Idle_ScoreText");
         gameOverPanel.SetActive(true);
         if (!gameManagerScript.AdSeen)
-            adButton.SetActive(true);
+        {
+            showAdPanel.SetActive(true);
+            RestartPanel.SetActive(false);
+            gameOver = true;
+        }    
         else
-            adButton.SetActive(false);
+        {
+            showAdPanel.SetActive(false);
+            RestartPanel.SetActive(true);
+        }        
     }
     public void ShowAd()
     {

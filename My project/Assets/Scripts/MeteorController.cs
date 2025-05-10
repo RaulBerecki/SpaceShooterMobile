@@ -11,7 +11,7 @@ public class MeteorController : MonoBehaviour
     float timer;
     GameManagerScript gameManagerScript;
     PlayerController playerController;
-    public GameObject explosionEffect;
+    public GameObject explosionEffect,pointsEffect;
     // Start is called before the first frame update
     void Start()
     {
@@ -68,6 +68,7 @@ public class MeteorController : MonoBehaviour
                 aid.GetComponent<Transform>().eulerAngles = newDirection;
             }
             gameManagerScript.score += 10;
+            Instantiate(pointsEffect, currentTransform.position, new Quaternion(0, 0, 0, 0));
         }
         Destroy(this.gameObject);
     }

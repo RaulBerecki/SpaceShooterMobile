@@ -13,12 +13,15 @@ public class PrepareSceneController : MonoBehaviour
     public TextMeshProUGUI debugText;
     public GameObject button;
     public DatabaseController databaseController;
+    public bool test;
     // Start is called before the first frame update
     void Start()
     {
         databaseController = GameObject.FindGameObjectWithTag("Database").GetComponent<DatabaseController>();
-        //databaseController.BeginDatabase("A_21r32tef", "Raul");
-        SignIn();
+        if(test)
+            databaseController.BeginDatabase("A_21r32tef", "Raul");
+        else
+            SignIn();
     }
     private void Update()
     {
@@ -38,5 +41,9 @@ public class PrepareSceneController : MonoBehaviour
                 Debug.LogError("Failed to load player score.");
             }
             });       
+    }
+    public void UpdateVersion()
+    {
+        Application.OpenURL("https://play.google.com/store/apps/details?id=com.BeryStudio.Astroviator");
     }
 }

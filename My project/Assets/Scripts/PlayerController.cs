@@ -65,8 +65,8 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                trailRenderer.startColor = new Color32(120,48,253, 255);
-                trailRenderer.endColor = new Color32(120, 48, 253, 0);   
+                trailRenderer.startColor = new Color32(77,42,146, 255);
+                trailRenderer.endColor = new Color32(77, 42, 146, 0);   
             }
             if(shield)
                 circleCollider.radius = .4f;
@@ -115,6 +115,7 @@ public class PlayerController : MonoBehaviour
                     timer = shootingUnlimitedTimer;
                 }
                 audioSource1.clip = shooting;
+                audioSource1.pitch = Random.Range(.9f, 1.1f);
                 audioSource1.Play();
             }
             if (leftClicked)
@@ -234,6 +235,20 @@ public class PlayerController : MonoBehaviour
             shootingUnlimited = false;
             fuelUnlimited = false;
             shield = true;
+            Destroy(other.gameObject);
+        }
+        if (other.gameObject.CompareTag("DestroyAllPowerUp"))
+        {
+            aidMagnet = false;
+            shootingUnlimited = false;
+            fuelUnlimited = false;
+            shield = false;
+            GameObject[] meteors = GameObject.FindGameObjectsWithTag("meteorManager");
+            foreach (GameObject meteor in meteors)
+            {
+                meteor.GetComponent<MeteorController>().isLarge = false;
+                meteor.GetComponent<MeteorController>().HitMeteor(meteor.transform.GetChild(0).transform);
+            }
             Destroy(other.gameObject);
         }
     }
