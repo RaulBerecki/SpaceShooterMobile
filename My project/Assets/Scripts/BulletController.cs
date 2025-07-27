@@ -14,6 +14,7 @@ public class BulletController : MonoBehaviour
         playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         gameManagerScript = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManagerScript>();
         rb = GetComponent<Rigidbody2D>();
+        rb.linearVelocity = transform.up * 4;
     }
 
     // Update is called once per frame
@@ -25,7 +26,7 @@ public class BulletController : MonoBehaviour
         }
         else
         {
-            rb.linearVelocity = transform.up * 4;
+            //rb.linearVelocity = transform.up * 4;
         }
         if (gameManagerScript.AdCompleted)
         {

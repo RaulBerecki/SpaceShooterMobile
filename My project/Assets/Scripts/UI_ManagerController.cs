@@ -6,11 +6,12 @@ using UnityEngine.SocialPlatforms.Impl;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
 using UnityEngine.SocialPlatforms;
+using System.Linq;
 
 public class UI_ManagerController : MonoBehaviour
 {
     public Animator playButton, pauseButton,scoreText,highscoreText;
-    public GameObject pauseMenu,mainMenu,gameMenu,gameOverPanel,leaderboardPanel;
+    public GameObject pauseMenu,mainMenu,gameMenu,gameOverPanel,leaderboardPanel,shopPanel;
     public TextMeshProUGUI[] highscoreTexts;
     public PlayerController playerController;
     public TextMeshProUGUI finalScoreText,highscoreTextUI;
@@ -20,11 +21,16 @@ public class UI_ManagerController : MonoBehaviour
     public RewardedAds rewardedAds;
     DatabaseController databaseController;
     public string[] highscoreTextSaver;
-    //GameOver
+    public TextMeshProUGUI bulletsText;
+    public TextMeshProUGUI trailText;
+    [Header("Game Over")]
     public float timerShowAd;
     public bool gameOver;
     public TextMeshProUGUI timerShowAdText;
     public GameObject showAdPanel, RestartPanel;
+    [Header("Shop")]
+    public List<GameObject> shipViews,buyButtons,highscoreTextShop;
+    public TextMeshProUGUI coinsText;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,6 +38,7 @@ public class UI_ManagerController : MonoBehaviour
         gameMenu.SetActive(false);
         pauseMenu.SetActive(false);
         gameOverPanel.SetActive(false);
+        shopPanel.SetActive(false);
         uiAudioSource = GetComponent<AudioSource>();
         highscoreTextUI.text=PlayerPrefs.GetInt("highscore").ToString();
         gameManagerScript = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManagerScript>();
@@ -42,6 +49,27 @@ public class UI_ManagerController : MonoBehaviour
         rewardedAds.uiManagerController = this;
         timerShowAd = 5f;
         gameOver = false;
+        for (int i = 0; i < buyButtons.Count; i++)
+        {
+            if (databaseController.currentData.shipInfos[i + 1].isOwned)
+            {
+                buyButtons[i].SetActive(false);
+            }
+        }
+        for (int i = 0; i < shipViews.Count; i++)
+        {
+            if (databaseController.currentData.lastShipPlayed == i)
+                shipViews[i].SetActive(true);
+            else
+                shipViews[i].SetActive(false);
+            if (databaseController.currentData.shipInfos[i].isOwned)
+            {
+                highscoreTextShop[2*i].SetActive(true);
+                highscoreTextShop[2*i+1].SetActive(true);
+                highscoreTextShop[2 * i + 1].GetComponent<TextMeshProUGUI>().text = databaseController.currentData.shipInfos[i].highscoreShip.ToString();
+            }
+        }
+        coinsText.text=databaseController.currentData.coins.ToString();
     }
 
     // Update is called once per frame
@@ -58,6 +86,8 @@ public class UI_ManagerController : MonoBehaviour
                 gameOver = false;
             }
         }
+        bulletsText.text = playerController.bulletsAvailable.ToString("0");
+        trailText.text = playerController.trailAvailable.ToString("0");
     }
     public void PlayGame()
     {
@@ -114,6 +144,16 @@ public class UI_ManagerController : MonoBehaviour
     {
         Application.LoadLevel("SampleScene");
     }
+    public void Shop()
+    {
+        mainMenu.SetActive(false);
+        shopPanel.SetActive(true);
+    }
+    public void BackToMenuFromShop()
+    {
+        mainMenu.SetActive(true);
+        shopPanel.SetActive(false);
+    }
     public void GameOver()
     {
         gameMenu.SetActive(false);
@@ -132,8 +172,48 @@ public class UI_ManagerController : MonoBehaviour
             RestartPanel.SetActive(true);
         }        
     }
+    //AD FUNCTIONS
     public void ShowAd()
     {
         rewardedAds.ShowRewardedAd();
+    }
+    public void SkipAd()
+    {
+        showAdPanel.SetActive(false);
+        RestartPanel.SetActive(true);
+    }
+    //SHOP FUNCTIONS
+    public void ShipSelect(int shipId)
+    {
+        for (int i = 0; i < shipViews.Count; i++)
+        {
+            if (shipId == i)
+                shipViews[i].SetActive(true);
+            else
+                shipViews[i].SetActive(false);
+        }
+        if (databaseController.currentData.shipInfos[shipId].isOwned)
+        {
+            databaseController.currentData.lastShipPlayed = shipId;
+            //Save Local
+            databaseController.UpdateData(databaseController.currentData);
+            gameManagerScript.ChangeShip(shipId);
+        }
+    }
+    public void BuyShip(int shipId)
+    {
+        if (databaseController.currentData.coins >= databaseController.currentData.shipInfos[shipId].price)
+        {
+            databaseController.currentData.shipInfos[shipId].isOwned = true;
+            databaseController.currentData.coins -= databaseController.currentData.shipInfos[shipId].price;
+            databaseController.currentData.lastShipPlayed = shipId;
+            buyButtons[shipId - 1].SetActive(false);
+            highscoreTextShop[2 * shipId].SetActive(true);
+            highscoreTextShop[2 * shipId + 1].SetActive(true);
+            highscoreTextShop[2 * shipId + 1].GetComponent<TextMeshProUGUI>().text = databaseController.currentData.shipInfos[shipId].highscoreShip.ToString();
+            databaseController.UpdateData(databaseController.currentData);
+            gameManagerScript.ChangeShip(shipId);
+            coinsText.text = databaseController.currentData.coins.ToString();
+        }
     }
 }

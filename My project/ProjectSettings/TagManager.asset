@@ -19,6 +19,7 @@ TagManager:
   - AdManager
   - DestroyAllPowerUp
   - meteorManager
+  - BouncingBulletPowerUp
   layers:
   - Default
   - TransparentFX
@@ -31,8 +32,8 @@ TagManager:
   - Wall
   - Meteor
   - Aids
-  - 
-  - 
+  - BouncingBullet
+  - EnemyShip
   - 
   - 
   - 

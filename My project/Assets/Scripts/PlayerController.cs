@@ -1,19 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
 using System.Drawing;
+using TMPro;
+using Unity.Cinemachine;
+using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
 public class PlayerController : MonoBehaviour
 {
     public Rigidbody2D rb;
+    public float maxFuel, maxAmmo;
     public float speed,noFuelSpeed,rotationSpeed,noRotationSpeed;
     bool leftClicked,rightClicked;
     UI_ManagerController UI_ManagerController;
     public AudioSource audioSource1,audioSource2;
-    public AudioClip shooting,gameOverSound,collectSound;
+    public AudioClip shooting,gameOverSound,collectSound,shootingBouncing;
     Animator animator;
     CircleCollider2D circleCollider;
+    public CameraController cameraController;
     //Shooting Variables
     public Transform shootingPoint;
     public GameObject bullet;
@@ -21,16 +24,16 @@ public class PlayerController : MonoBehaviour
     float timer;
     public int bulletsAvailable;
     public bool playing,pausing,offGame,gameOver;
-    public TextMeshProUGUI bulletsText;
     //TrailVariables
     public TrailRenderer trailRenderer;
     public float trailTimer;
     public int trailAvailable;
-    public TextMeshProUGUI trailText;
     //Superpowers
-    public bool aidMagnet,shootingUnlimited,fuelUnlimited,shield;
-    public float shootingUnlimitedTimer,doubleSpeed;
-    public float timerPower;
+    public bool aidMagnet,shootingUnlimited,fuelUnlimited,shield,bouncingBullets;
+    public GameObject bouncingBullet;
+    public float shootingUnlimitedTimer,doubleSpeed,bouncingBulletTimerToSet;
+    public float timerPower,aidMagnetSoundTimer;
+    public AudioSource allDestroySound, aidMagnetSound;
     // Start is called before the first frame update
     void Start()
     {
@@ -39,6 +42,7 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         circleCollider = GetComponent<CircleCollider2D>();
         UI_ManagerController = GameObject.FindGameObjectWithTag("UIManager").GetComponent<UI_ManagerController>();
+        cameraController = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraController>();
         timer = 0;
         trailTimer = .5f;
         trailAvailable = bulletsAvailable = 100;
@@ -47,9 +51,10 @@ public class PlayerController : MonoBehaviour
         noRotationSpeed = rotationSpeed / 2;
         trailRenderer.startWidth = .15f;
         trailRenderer.endWidth = .15f;
-        aidMagnet = shootingUnlimited = false;
+        aidMagnet = shootingUnlimited = fuelUnlimited= shield=bouncingBullets= false;
         shootingUnlimitedTimer = timerToSet / 2f;
         doubleSpeed = speed * 1.5f;
+        aidMagnetSoundTimer = 2f;
     }
 
     // Update is called once per frame
@@ -71,7 +76,7 @@ public class PlayerController : MonoBehaviour
             if(shield)
                 circleCollider.radius = .4f;
             else
-                circleCollider.radius = .12f;
+                circleCollider.radius = .01f;
             timer -= Time.deltaTime;
             trailTimer -= Time.deltaTime;
             timerPower-= Time.deltaTime;
@@ -103,20 +108,34 @@ public class PlayerController : MonoBehaviour
             }
             if (timer < 0 && bulletsAvailable > 0)
             {
-                GameObject bulletInstance = Instantiate(bullet, shootingPoint.position, shootingPoint.rotation);
+                GameObject bulletInstance;
+                if (bouncingBullets)
+                {
+                    bulletInstance = Instantiate(bouncingBullet, shootingPoint.position, shootingPoint.rotation);
+                    audioSource1.clip = shootingBouncing;
+                    audioSource1.pitch = Random.Range(.85f, 1.15f);
+                    audioSource1.Play();
+                }
+                else
+                {
+                    bulletInstance = Instantiate(bullet, shootingPoint.position, shootingPoint.rotation);
+                    audioSource1.clip = shooting;
+                    audioSource1.pitch = Random.Range(.85f, 1.15f);
+                    audioSource1.Play();
+                }
                 bulletInstance.GetComponent<Rigidbody2D>().linearVelocity = shootingPoint.up * 4;
-                if(!shootingUnlimited)
+                if(!shootingUnlimited && !bouncingBullets)
                 {
                     bulletsAvailable--;
                     timer = timerToSet;
                 }
                 else
                 {
-                    timer = shootingUnlimitedTimer;
+                    if (shootingUnlimited)
+                        timer = shootingUnlimitedTimer;
+                    else
+                        timer = bouncingBulletTimerToSet;
                 }
-                audioSource1.clip = shooting;
-                audioSource1.pitch = Random.Range(.9f, 1.1f);
-                audioSource1.Play();
             }
             if (leftClicked)
             {
@@ -126,8 +145,21 @@ public class PlayerController : MonoBehaviour
             {
                 transform.Rotate(-new Vector3(0, 0, 1) * rotationSpeed);
             }
-            bulletsText.text=bulletsAvailable.ToString("0");
-            trailText.text = trailAvailable.ToString("0");
+            if (aidMagnet)
+            {
+                aidMagnetSoundTimer -= Time.deltaTime;
+                if (aidMagnetSoundTimer <= 0)
+                {
+                    aidMagnetSound.pitch = Random.Range(0.85f, 1.15f);
+                    aidMagnetSound.Play();
+                    aidMagnetSoundTimer = 2f;
+                }
+            }
+            else
+            {
+                aidMagnetSound.Stop();
+                aidMagnetSoundTimer = 2f;
+            }
         }
         if (rightClicked && leftClicked && !pausing)
         {
@@ -190,12 +222,14 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("aidBullet"))
         {
             bulletsAvailable += 10;
+            audioSource2.pitch = Random.Range(.85f, 1.15f);
             audioSource2.clip = collectSound;
             audioSource2.Play();
             Destroy(other.gameObject);
         }
         if (other.gameObject.CompareTag("fuelAid"))
         {
+            audioSource2.pitch = Random.Range(.85f, 1.15f);
             trailAvailable += 10;
             audioSource2.clip = collectSound;
             audioSource2.Play();
@@ -203,11 +237,13 @@ public class PlayerController : MonoBehaviour
         }
         if (other.gameObject.CompareTag("AidMagnet"))
         {
+            aidMagnetSound.Play();
             timerPower = 30;
             aidMagnet = true;
             shootingUnlimited = false;
             fuelUnlimited = false;
             shield = false;
+            bouncingBullets = false;
             Destroy(other.gameObject);
         }
         if (other.gameObject.CompareTag("ShootingPowerUnlimited"))
@@ -217,6 +253,7 @@ public class PlayerController : MonoBehaviour
             shootingUnlimited = true;
             fuelUnlimited = false;
             shield = false;
+            bouncingBullets = false;
             Destroy(other.gameObject);
         }
         if (other.gameObject.CompareTag("FuelPowerUnlimited"))
@@ -226,6 +263,7 @@ public class PlayerController : MonoBehaviour
             shootingUnlimited = false;
             fuelUnlimited = true;
             shield = false;
+            bouncingBullets = false;
             Destroy(other.gameObject);
         }
         if (other.gameObject.CompareTag("ShieldPower"))
@@ -235,20 +273,30 @@ public class PlayerController : MonoBehaviour
             shootingUnlimited = false;
             fuelUnlimited = false;
             shield = true;
+            bouncingBullets = false;
             Destroy(other.gameObject);
         }
         if (other.gameObject.CompareTag("DestroyAllPowerUp"))
         {
-            aidMagnet = false;
-            shootingUnlimited = false;
-            fuelUnlimited = false;
-            shield = false;
+            StartCoroutine(cameraController.Shake(.15f, .2f));
+            allDestroySound.pitch = Random.Range(0.85f, 1.15f);
+            allDestroySound.Play();
             GameObject[] meteors = GameObject.FindGameObjectsWithTag("meteorManager");
             foreach (GameObject meteor in meteors)
             {
                 meteor.GetComponent<MeteorController>().isLarge = false;
                 meteor.GetComponent<MeteorController>().HitMeteor(meteor.transform.GetChild(0).transform);
             }
+            Destroy(other.gameObject);
+        }
+        if (other.gameObject.CompareTag("BouncingBulletPowerUp"))
+        {
+            timerPower = 30;
+            aidMagnet = false;
+            shootingUnlimited = false;
+            fuelUnlimited = false;
+            shield = false;
+            bouncingBullets = true;
             Destroy(other.gameObject);
         }
     }
