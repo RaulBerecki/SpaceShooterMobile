@@ -707,14 +707,14 @@ MonoBehaviour:
   shootingPoint: {fileID: 9172545354532913982}
   bullet: {fileID: 561011147281613410, guid: ceab846a15dd0774690e843e56baa54a, type: 3}
   timerToSet: 0.9
-  bulletsAvailable: 0
+  bulletsAvailable: 100
   playing: 0
   pausing: 0
   offGame: 0
   gameOver: 0
   trailRenderer: {fileID: 0}
   trailTimer: 0
-  trailAvailable: 0
+  trailAvailable: 100
   aidMagnet: 0
   shootingUnlimited: 0
   fuelUnlimited: 0
@@ -728,6 +728,7 @@ MonoBehaviour:
   aidMagnetSoundTimer: 0
   allDestroySound: {fileID: 6248784105440599059}
   aidMagnetSound: {fileID: 3986765247423323977}
+  resourcesCollected: 0
 --- !u!82 &6576539536633508607
 AudioSource:
   m_ObjectHideFlags: 0
@@ -741,7 +742,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.8
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -838,7 +839,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0

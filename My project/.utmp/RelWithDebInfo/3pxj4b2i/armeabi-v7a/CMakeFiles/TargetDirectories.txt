@@ -1,0 +1,5 @@
+D:/GameDev/SpaceShooterMobile/My project/.utmp/RelWithDebInfo/3pxj4b2i/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/GameDev/SpaceShooterMobile/My project/.utmp/RelWithDebInfo/3pxj4b2i/armeabi-v7a/CMakeFiles/rebuild_cache.dir
+D:/GameDev/SpaceShooterMobile/My project/.utmp/RelWithDebInfo/3pxj4b2i/armeabi-v7a/FramePacing/CMakeFiles/swappywrapper.dir
+D:/GameDev/SpaceShooterMobile/My project/.utmp/RelWithDebInfo/3pxj4b2i/armeabi-v7a/FramePacing/CMakeFiles/edit_cache.dir
+D:/GameDev/SpaceShooterMobile/My project/.utmp/RelWithDebInfo/3pxj4b2i/armeabi-v7a/FramePacing/CMakeFiles/rebuild_cache.dir

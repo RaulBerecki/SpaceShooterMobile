@@ -26,7 +26,7 @@ public class BulletController : MonoBehaviour
         }
         else
         {
-            //rb.linearVelocity = transform.up * 4;
+            rb.linearVelocity = transform.up * 4;
         }
         if (gameManagerScript.AdCompleted)
         {

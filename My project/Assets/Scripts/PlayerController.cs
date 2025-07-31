@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using TMPro;
-using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
 public class PlayerController : MonoBehaviour
@@ -34,6 +33,7 @@ public class PlayerController : MonoBehaviour
     public float shootingUnlimitedTimer,doubleSpeed,bouncingBulletTimerToSet;
     public float timerPower,aidMagnetSoundTimer;
     public AudioSource allDestroySound, aidMagnetSound;
+    public int resourcesCollected;
     // Start is called before the first frame update
     void Start()
     {
@@ -45,7 +45,6 @@ public class PlayerController : MonoBehaviour
         cameraController = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraController>();
         timer = 0;
         trailTimer = .5f;
-        trailAvailable = bulletsAvailable = 100;
         playing = pausing = offGame = gameOver = false;
         noFuelSpeed = speed / 3;
         noRotationSpeed = rotationSpeed / 2;
@@ -196,7 +195,7 @@ public class PlayerController : MonoBehaviour
     }
     public void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("meteor") && playing)
+        if (collision.gameObject.CompareTag("meteor") || collision.gameObject.CompareTag("satellite") && playing)
         {
             Debug.Log("hit");
             if(shield)
@@ -231,6 +230,14 @@ public class PlayerController : MonoBehaviour
         {
             audioSource2.pitch = Random.Range(.85f, 1.15f);
             trailAvailable += 10;
+            audioSource2.clip = collectSound;
+            audioSource2.Play();
+            Destroy(other.gameObject);
+        }
+        if (other.gameObject.CompareTag("resourceAid"))
+        {
+            audioSource2.pitch = Random.Range(.85f, 1.15f);
+            resourcesCollected += 5;
             audioSource2.clip = collectSound;
             audioSource2.Play();
             Destroy(other.gameObject);
@@ -286,6 +293,11 @@ public class PlayerController : MonoBehaviour
             {
                 meteor.GetComponent<MeteorController>().isLarge = false;
                 meteor.GetComponent<MeteorController>().HitMeteor(meteor.transform.GetChild(0).transform);
+            }
+            GameObject[] satellites = GameObject.FindGameObjectsWithTag("satelliteManager");
+            foreach (GameObject satellite in satellites)
+            {
+                satellite.GetComponent<SatelliteController>().HitSatellite(satellite.transform.GetChild(0).transform);
             }
             Destroy(other.gameObject);
         }

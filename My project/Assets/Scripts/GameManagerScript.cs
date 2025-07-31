@@ -8,7 +8,7 @@ public class GameManagerScript : MonoBehaviour
 {
     private const string idTest = "A_21r32tef";
     public float timerLeft, timerRight,timerUp,timerDown,timerAid,timerAid2,timerPower;
-    public GameObject largeMeteor, smallMeteor,bulletAid,fuelAid;
+    public GameObject largeMeteor, smallMeteor,bulletAid,fuelAid, resourceAid;
     public GameObject[] spawnPoints,powers;
     PlayerController playerController;
     public float score,lastScore,difficultyRate,timeRate;
@@ -18,8 +18,9 @@ public class GameManagerScript : MonoBehaviour
     public bool AdCompleted, AdSeen;
     DatabaseController databaseController;
     UI_ManagerController uiManagerController;
+    bool resourceAdded;
 
-    [SerializeField] List<GameObject> ships;
+    [SerializeField] List<GameObject> ships, satellites;
     public GameObject currentShip;
     [Header("Camera")]
     public Camera cam;
@@ -28,6 +29,7 @@ public class GameManagerScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        resourceAdded = false;
         databaseController = GameObject.FindGameObjectWithTag("Database").GetComponent<DatabaseController>();
         currentShip = Instantiate(ships[databaseController.currentData.lastShipPlayed],Vector3.zero,Quaternion.identity);
         uiManagerController = GameObject.FindGameObjectWithTag("UIManager").GetComponent<UI_ManagerController>();
@@ -42,8 +44,23 @@ public class GameManagerScript : MonoBehaviour
         timerAid = Random.Range(5, 10);
         timerAid2 = Random.Range(5, 10);
         timerPower = Random.Range(10, 20);
-        AdCompleted = AdSeen = false;
-        timeRate = Random.Range(30, 60);
+        if (PlayerPrefs.GetInt("AdSeen") == 0)
+        {
+            AdCompleted = AdSeen = false;
+        }
+        else
+        {
+            AdSeen = true;
+            playerController.trailAvailable = PlayerPrefs.GetInt("trail");
+            playerController.bulletsAvailable = PlayerPrefs.GetInt("bullet");
+            playerController.resourcesCollected = PlayerPrefs.GetInt("resources");
+            databaseController.currentData.AddResources(-PlayerPrefs.GetInt("resources"));
+            PlayerPrefs.SetInt("AdSeen", 0);
+            PlayerPrefs.SetInt("trail", 0);
+            PlayerPrefs.SetInt("bullet", 0);
+            PlayerPrefs.SetInt("resources", 0);
+        }
+            timeRate = Random.Range(30, 60);
         difficultyRate = 1;
     }
 
@@ -54,7 +71,7 @@ public class GameManagerScript : MonoBehaviour
         SpawnPointsPosition();
         if (!playerController.pausing && playerController.playing)
         {
-            GenerateMeteors();
+            GenerateEnemy();
             GenerateAids();
             GeneratePowers();
             IncreaseDificulty();
@@ -66,7 +83,7 @@ public class GameManagerScript : MonoBehaviour
             audioSource.Play();
             lastScore = (score / 500) * 500;
         }
-        if (playerController.gameOver)
+        if (playerController.gameOver && !resourceAdded)
         {
             if (databaseController.currentData.shipInfos[databaseController.currentData.lastShipPlayed].highscoreShip < (int)score)
             {
@@ -75,9 +92,12 @@ public class GameManagerScript : MonoBehaviour
                 {
                     databaseController.currentData.highscore = (int)score;
                 }
-                //save local
-                databaseController.UpdateData(databaseController.currentData);
+
             }
+            databaseController.currentData.AddResources(playerController.resourcesCollected);
+            //save local
+            databaseController.UpdateData(databaseController.currentData);
+            resourceAdded = true;
         }
         if (AdCompleted && !AdSeen)
         {
@@ -142,20 +162,14 @@ public class GameManagerScript : MonoBehaviour
     }
     void ReloadGameAfterAd()
     {
-        playerController.gameOver = false;
-        playerController.playing = false;
-        playerController.rb.linearVelocity = Vector2.zero;
-        playerController.rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-        playerController.rb.constraints = RigidbodyConstraints2D.None;
-        playerController.transform.position = new Vector2(0,0);
-        playerController.trailRenderer.Clear();
-        playerController.transform.eulerAngles = new Vector3(0,0,0);
         playerController.trailAvailable += 50;
         playerController.bulletsAvailable += 50;
-        playerController.LeftButtonNotClicked();
-        playerController.RightButtonNotClicked();
-        AdCompleted = false;
-        AdSeen = true;
+        PlayerPrefs.SetInt("AdSeen", 1);
+        PlayerPrefs.SetInt("trail", playerController.trailAvailable);
+        PlayerPrefs.SetInt("bullet", playerController.bulletsAvailable);
+        PlayerPrefs.SetInt("resources", playerController.resourcesCollected);
+        Debug.Log("adSeen");
+        Application.LoadLevel("SampleScene");
     }
     void GeneratePowers()
     {
@@ -166,9 +180,9 @@ public class GameManagerScript : MonoBehaviour
             float camWidth = camHeight * cam.aspect;
             int choice = Random.Range(0, 4);
             GameObject aid;
-            float angleChange = Random.RandomRange(-15, 15);
-            float coordChangeWidth = Random.RandomRange(-camWidth/2f, camWidth/2f);
-            float coordChangeHeight = Random.RandomRange(-camHeight/2f, camHeight / 2f);
+            float angleChange = Random.Range(-15, 15);
+            float coordChangeWidth = Random.Range(-camWidth/2f, camWidth/2f);
+            float coordChangeHeight = Random.Range(-camHeight/2f, camHeight / 2f);
             int choicePower = Random.Range(0, powers.Length);
             if (choice == 0)//Left
             {
@@ -190,7 +204,7 @@ public class GameManagerScript : MonoBehaviour
                 aid = Instantiate(powers[choicePower], spawnPoints[3].transform.position + new Vector3(coordChangeWidth, 0, 0), spawnPoints[3].transform.rotation);
                 aid.transform.eulerAngles = new Vector3(0, 0, 0 + angleChange);
             }
-            timerPower = Random.RandomRange(10, 20);
+            timerPower = Random.Range(10, 20);
         }
     }
     void GenerateAids()
@@ -203,9 +217,9 @@ public class GameManagerScript : MonoBehaviour
             float camWidth = camHeight * cam.aspect;
             int choice=Random.Range(0,4);
             GameObject aid;
-            float angleChange = Random.RandomRange(-15, 15);
-            float coordChangeWidth = Random.RandomRange(-camWidth / 2f, camWidth / 2f);
-            float coordChangeHeight = Random.RandomRange(-camHeight / 2f, camHeight / 2f);
+            float angleChange = Random.Range(-15, 15);
+            float coordChangeWidth = Random.Range(-camWidth / 2f, camWidth / 2f);
+            float coordChangeHeight = Random.Range(-camHeight / 2f, camHeight / 2f);
             if (choice == 0)
             {
                 aid = Instantiate(bulletAid, spawnPoints[0].transform.position + new Vector3(0, coordChangeHeight, 0), spawnPoints[0].transform.rotation);
@@ -226,7 +240,7 @@ public class GameManagerScript : MonoBehaviour
                 aid = Instantiate(bulletAid, spawnPoints[3].transform.position + new Vector3(coordChangeWidth, 0, 0), spawnPoints[3].transform.rotation);
                 aid.transform.eulerAngles = new Vector3(0, 0, 0 + angleChange);
             }
-            timerAid = difficultyRate * Random.RandomRange(3, 8);
+            timerAid = difficultyRate * Random.Range(3, 8);
         }
         if (timerAid2 < 0)
         {
@@ -234,9 +248,9 @@ public class GameManagerScript : MonoBehaviour
             float camWidth = camHeight * cam.aspect;
             int choice = Random.Range(0, 4);
             GameObject aid;
-            float angleChange = Random.RandomRange(-15, 15);
-            float coordChangeWidth = Random.RandomRange(-camWidth / 2f, camWidth / 2f);
-            float coordChangeHeight = Random.RandomRange(-camHeight / 2f, camHeight/2f);
+            float angleChange = Random.Range(-15, 15);
+            float coordChangeWidth = Random.Range(-camWidth / 2f, camWidth / 2f);
+            float coordChangeHeight = Random.Range(-camHeight / 2f, camHeight/2f);
             if (choice == 0)
             {
                 aid = Instantiate(fuelAid, spawnPoints[0].transform.position + new Vector3(0, coordChangeHeight, 0), spawnPoints[0].transform.rotation);
@@ -257,10 +271,10 @@ public class GameManagerScript : MonoBehaviour
                 aid = Instantiate(fuelAid, spawnPoints[3].transform.position + new Vector3(coordChangeWidth, 0, 0), spawnPoints[3].transform.rotation);
                 aid.transform.eulerAngles = new Vector3(0, 0, 0 + angleChange);
             }
-            timerAid2 = difficultyRate * Random.RandomRange(3, 8);
+            timerAid2 = difficultyRate * Random.Range(3, 8);
         }
     }
-    void GenerateMeteors()
+    void GenerateEnemy()
     {
         timerLeft -= Time.deltaTime;
         timerRight -= Time.deltaTime;
@@ -269,146 +283,214 @@ public class GameManagerScript : MonoBehaviour
         if (timerLeft < 0)
         {
             float camHeight = 2f * cam.orthographicSize;
-            int choice = Random.RandomRange(0, 2);
-            GameObject meteor;
-            float angleChange = Random.RandomRange(-15, 15);
-            float coordChangeHeight = Random.RandomRange(-camHeight / 2f, camHeight/2f);
-            if (choice == 0)
+            int enemey = Random.Range(0, 8);
+            GameObject instance;
+            float angleChange = Random.Range(-15, 15);
+            float coordChangeHeight = Random.Range(-camHeight / 2f, camHeight / 2f);
+            if (enemey <7)
             {
-                meteor = Instantiate(smallMeteor, spawnPoints[0].transform.position + new Vector3(0, coordChangeHeight, 0), spawnPoints[0].transform.rotation);
-                meteor.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
-                if (angleChange > 0)
+                int choice = Random.Range(0, 3);
+                if (choice == 0)
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("LeftRotatingSmallMeteor");
+                    instance = Instantiate(smallMeteor, spawnPoints[0].transform.position + new Vector3(0, coordChangeHeight, 0), spawnPoints[0].transform.rotation);
+                    instance.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+                    if (angleChange > 0)
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("LeftRotatingSmallMeteor");
+                    }
+                    else
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("RightRotatingSmallMeteor");
+                    }
                 }
                 else
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("RightRotatingSmallMeteor");
+                    instance = Instantiate(largeMeteor, spawnPoints[0].transform.position + new Vector3(0, coordChangeHeight, 0), spawnPoints[0].transform.rotation);
+                    instance.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+                    if (angleChange > 0)
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("LeftRotatingLargeMeteor");
+                    }
+                    else
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("RightRotatingLargeMeteor");
+                    }
                 }
+                instance.GetComponent<MeteorController>().rb.linearVelocity = instance.transform.up * 1.5f;
             }
-            else
+            else if(enemey == 7)
             {
-                meteor = Instantiate(largeMeteor, spawnPoints[0].transform.position + new Vector3(0, coordChangeHeight, 0), spawnPoints[0].transform.rotation);
-                meteor.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
+                instance = Instantiate(satellites[Random.Range(0,satellites.Count)], spawnPoints[0].transform.position + new Vector3(0, coordChangeHeight, 0), spawnPoints[0].transform.rotation);
+                instance.transform.eulerAngles = new Vector3(0, 0, -90 + angleChange);
                 if (angleChange > 0)
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("LeftRotatingLargeMeteor");
+                    instance.GetComponent<SatelliteController>().animator.Play("SatelliteRotateLeft");
                 }
                 else
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("RightRotatingLargeMeteor");
+                    instance.GetComponent<SatelliteController>().animator.Play("SatelliteRotateRight");
                 }
             }
-            meteor.GetComponent<MeteorController>().rb.linearVelocity = meteor.transform.up * 1.5f;
-            timerLeft = difficultyRate * Random.RandomRange(2, 6);
+            timerLeft = difficultyRate * Random.Range(2, 6);
         }
         if (timerRight < 0)
         {
             float camHeight = 2f * cam.orthographicSize;
-            int choice = Random.RandomRange(0, 2);
-            GameObject meteor;
-            float angleChange = Random.RandomRange(-15, 15);
-            float coordChangeHeight = Random.RandomRange(-camHeight / 2f, camHeight/2f);
-            if (choice == 0)
+            GameObject instance;
+            float angleChange = Random.Range(-15, 15);
+            float coordChangeHeight = Random.Range(-camHeight / 2f, camHeight / 2f);
+            int enemy = Random.Range(0, 8);
+            if(enemy < 7)
             {
-                meteor = Instantiate(smallMeteor, spawnPoints[1].transform.position + new Vector3(0, coordChangeHeight, 0), spawnPoints[1].transform.rotation);
-                meteor.transform.eulerAngles = new Vector3(0, 0, 90 + angleChange);
-                if (angleChange > 0)
+                int choice = Random.Range(0, 2);
+                if (choice == 0)
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("LeftRotatingSmallMeteor");
+                    instance = Instantiate(smallMeteor, spawnPoints[1].transform.position + new Vector3(0, coordChangeHeight, 0), spawnPoints[1].transform.rotation);
+                    instance.transform.eulerAngles = new Vector3(0, 0, 90 + angleChange);
+                    if (angleChange > 0)
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("LeftRotatingSmallMeteor");
+                    }
+                    else
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("RightRotatingSmallMeteor");
+                    }
                 }
                 else
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("RightRotatingSmallMeteor");
+                    instance = Instantiate(largeMeteor, spawnPoints[1].transform.position + new Vector3(0, coordChangeHeight, 0), spawnPoints[1].transform.rotation);
+                    instance.transform.eulerAngles = new Vector3(0, 0, 90 + angleChange);
+                    if (angleChange > 0)
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("LeftRotatingLargeMeteor");
+                    }
+                    else
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("RightRotatingLargeMeteor");
+                    }
                 }
+                instance.GetComponent<MeteorController>().rb.linearVelocity = instance.transform.up * 1.5f;
             }
-            else
+            else if (enemy == 7)
             {
-                meteor = Instantiate(largeMeteor, spawnPoints[1].transform.position + new Vector3(0, coordChangeHeight, 0), spawnPoints[1].transform.rotation);
-                meteor.transform.eulerAngles = new Vector3(0, 0, 90 + angleChange);
+                instance = Instantiate(satellites[Random.Range(0, satellites.Count)], spawnPoints[1].transform.position + new Vector3(0, coordChangeHeight, 0), spawnPoints[0].transform.rotation);
+                instance.transform.eulerAngles = new Vector3(0, 0, 90 + angleChange);
                 if (angleChange > 0)
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("LeftRotatingLargeMeteor");
+                    instance.GetComponent<SatelliteController>().animator.Play("SatelliteRotateLeft");
                 }
                 else
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("RightRotatingLargeMeteor");
+                    instance.GetComponent<SatelliteController>().animator.Play("SatelliteRotateRight");
                 }
             }
-            meteor.GetComponent<MeteorController>().rb.linearVelocity = meteor.transform.up * 1.5f;
-            timerRight = difficultyRate * Random.RandomRange(2, 6);
+            timerRight = difficultyRate * Random.Range(2, 6);
         }
         if (timerUp < 0)
         {
             float camWidth = camHeight * cam.aspect;
-            int choice = Random.RandomRange(0, 2);
-            GameObject meteor;
-            float angleChange = Random.RandomRange(-15, 15);
-            float coordChangeWidth = Random.RandomRange(-camWidth / 2f, camWidth / 2f);
-            if (choice == 0)
+            GameObject instance;
+            float angleChange = Random.Range(-15, 15);
+            float coordChangeWidth = Random.Range(-camWidth / 2f, camWidth / 2f);
+            int enemy = Random.Range(0, 8);
+            if (enemy < 7)
             {
-                meteor = Instantiate(smallMeteor, spawnPoints[2].transform.position + new Vector3(coordChangeWidth, 0, 0), spawnPoints[2].transform.rotation);
-                meteor.transform.eulerAngles = new Vector3(0, 0, -180 + angleChange);
-                if (angleChange > 0)
+                int choice = Random.Range(0, 2);
+                if (choice == 0)
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("LeftRotatingSmallMeteor");
+                    instance = Instantiate(smallMeteor, spawnPoints[2].transform.position + new Vector3(coordChangeWidth, 0, 0), spawnPoints[2].transform.rotation);
+                    instance.transform.eulerAngles = new Vector3(0, 0, -180 + angleChange);
+                    if (angleChange > 0)
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("LeftRotatingSmallMeteor");
+                    }
+                    else
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("RightRotatingSmallMeteor");
+                    }
                 }
                 else
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("RightRotatingSmallMeteor");
+                    instance = Instantiate(largeMeteor, spawnPoints[2].transform.position + new Vector3(coordChangeWidth, 0, 0), spawnPoints[2].transform.rotation);
+                    instance.transform.eulerAngles = new Vector3(0, 0, -180 + angleChange);
+                    if (angleChange > 0)
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("LeftRotatingLargeMeteor");
+                    }
+                    else
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("RightRotatingLargeMeteor");
+                    }
                 }
+                instance.GetComponent<MeteorController>().rb.linearVelocity = instance.transform.up * 1.5f;
             }
-            else
+            else if (enemy == 7)
             {
-                meteor = Instantiate(largeMeteor, spawnPoints[2].transform.position + new Vector3(coordChangeWidth, 0, 0), spawnPoints[2].transform.rotation);
-                meteor.transform.eulerAngles = new Vector3(0, 0, -180 + angleChange);
+                instance = Instantiate(satellites[Random.Range(0, satellites.Count)], spawnPoints[2].transform.position + new Vector3(0, coordChangeWidth, 0), spawnPoints[0].transform.rotation);
+                instance.transform.eulerAngles = new Vector3(0, 0, -180 + angleChange);
                 if (angleChange > 0)
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("LeftRotatingLargeMeteor");
+                    instance.GetComponent<SatelliteController>().animator.Play("SatelliteRotateLeft");
                 }
                 else
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("RightRotatingLargeMeteor");
+                    instance.GetComponent<SatelliteController>().animator.Play("SatelliteRotateRight");
                 }
             }
-            meteor.GetComponent<MeteorController>().rb.linearVelocity = meteor.transform.up * 1.5f;
-            timerUp = difficultyRate * Random.RandomRange(2, 6);
+            timerUp = difficultyRate * Random.Range(2, 6);
         }
         if (timerDown < 0)
         {
             float camWidth = camHeight * cam.aspect;
-            int choice = Random.RandomRange(0, 2);
-            GameObject meteor;
-            float angleChange = Random.RandomRange(-15, 15);
-            float coordChangeWidth = Random.RandomRange(-camWidth / 2f, camWidth / 2f);
-            if (choice == 0)
+            GameObject instance;
+            float angleChange = Random.Range(-15, 15);
+            float coordChangeWidth = Random.Range(-camWidth / 2f, camWidth / 2f);
+            int enemy = Random.Range(0, 8);
+            if (enemy < 7)
             {
-                meteor = Instantiate(smallMeteor, spawnPoints[3].transform.position + new Vector3(coordChangeWidth, 0, 0), spawnPoints[3].transform.rotation);
-                meteor.transform.eulerAngles = new Vector3(0, 0, 0 + angleChange);
-                if (angleChange > 0)
+                int choice = Random.Range(0, 2);
+                if (choice == 0)
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("LeftRotatingSmallMeteor");
+                    instance = Instantiate(smallMeteor, spawnPoints[3].transform.position + new Vector3(coordChangeWidth, 0, 0), spawnPoints[3].transform.rotation);
+                    instance.transform.eulerAngles = new Vector3(0, 0, 0 + angleChange);
+                    if (angleChange > 0)
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("LeftRotatingSmallMeteor");
+                    }
+                    else
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("RightRotatingSmallMeteor");
+                    }
                 }
                 else
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("RightRotatingSmallMeteor");
+                    instance = Instantiate(largeMeteor, spawnPoints[3].transform.position + new Vector3(coordChangeWidth, 0, 0), spawnPoints[3].transform.rotation);
+                    instance.transform.eulerAngles = new Vector3(0, 0, 0 + angleChange);
+                    if (angleChange > 0)
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("LeftRotatingLargeMeteor");
+                    }
+                    else
+                    {
+                        instance.GetComponent<MeteorController>().animator.Play("RightRotatingLargeMeteor");
+                    }
                 }
+                instance.GetComponent<MeteorController>().rb.linearVelocity = instance.transform.up * 1.5f;
             }
-            else
+            else if (enemy == 7)
             {
-                meteor = Instantiate(largeMeteor, spawnPoints[3].transform.position + new Vector3(coordChangeWidth, 0, 0), spawnPoints[3].transform.rotation);
-                meteor.transform.eulerAngles = new Vector3(0, 0, 0 + angleChange);
+                instance = Instantiate(satellites[Random.Range(0, satellites.Count)], spawnPoints[3].transform.position + new Vector3(0, coordChangeWidth, 0), spawnPoints[0].transform.rotation);
+                instance.transform.eulerAngles = new Vector3(0, 0, 0 + angleChange);
                 if (angleChange > 0)
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("LeftRotatingLargeMeteor");
+                    instance.GetComponent<SatelliteController>().animator.Play("SatelliteRotateLeft");
                 }
                 else
                 {
-                    meteor.GetComponent<MeteorController>().animator.Play("RightRotatingLargeMeteor");
+                    instance.GetComponent<SatelliteController>().animator.Play("SatelliteRotateRight");
                 }
             }
-            meteor.GetComponent<MeteorController>().rb.linearVelocity = meteor.transform.up * 1.5f;
-            timerDown = difficultyRate * Random.RandomRange(2, 6);
+            timerDown = difficultyRate * Random.Range(2, 6);
         }
     }
     public void ChangeShip(int shipId)

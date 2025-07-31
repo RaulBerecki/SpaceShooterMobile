@@ -30,7 +30,7 @@ public class UI_ManagerController : MonoBehaviour
     public GameObject showAdPanel, RestartPanel;
     [Header("Shop")]
     public List<GameObject> shipViews,buyButtons,highscoreTextShop;
-    public TextMeshProUGUI coinsText;
+    public TextMeshProUGUI coinsText,resourceText;
     // Start is called before the first frame update
     void Start()
     {
@@ -40,7 +40,6 @@ public class UI_ManagerController : MonoBehaviour
         gameOverPanel.SetActive(false);
         shopPanel.SetActive(false);
         uiAudioSource = GetComponent<AudioSource>();
-        highscoreTextUI.text=PlayerPrefs.GetInt("highscore").ToString();
         gameManagerScript = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManagerScript>();
         databaseController = GameObject.FindGameObjectWithTag("Database").GetComponent<DatabaseController>();
         databaseController.uiController = this;
@@ -49,6 +48,7 @@ public class UI_ManagerController : MonoBehaviour
         rewardedAds.uiManagerController = this;
         timerShowAd = 5f;
         gameOver = false;
+        highscoreTextUI.text = databaseController.currentData.highscore.ToString();
         for (int i = 0; i < buyButtons.Count; i++)
         {
             if (databaseController.currentData.shipInfos[i + 1].isOwned)
@@ -70,6 +70,7 @@ public class UI_ManagerController : MonoBehaviour
             }
         }
         coinsText.text=databaseController.currentData.coins.ToString();
+        resourceText.text = databaseController.currentData.resources.ToString();
     }
 
     // Update is called once per frame
@@ -157,7 +158,7 @@ public class UI_ManagerController : MonoBehaviour
     public void GameOver()
     {
         gameMenu.SetActive(false);
-        finalScoreText.text = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManagerScript>().score.ToString("0");
+        finalScoreText.text = gameManagerScript.score.ToString("0");
         scoreText.Play("Idle_ScoreText");
         gameOverPanel.SetActive(true);
         if (!gameManagerScript.AdSeen)
@@ -214,6 +215,16 @@ public class UI_ManagerController : MonoBehaviour
             databaseController.UpdateData(databaseController.currentData);
             gameManagerScript.ChangeShip(shipId);
             coinsText.text = databaseController.currentData.coins.ToString();
+        }
+    }
+    public void Trade10Resources()
+    {
+        if (databaseController.currentData.resources >= 10)
+        {
+            databaseController.currentData.Trade10();
+            coinsText.text = databaseController.currentData.coins.ToString();
+            resourceText.text = databaseController.currentData.resources.ToString();
+            databaseController.UpdateData(databaseController.currentData);
         }
     }
 }

@@ -34,13 +34,9 @@ public class PrepareSceneController : MonoBehaviour
         {
             if (success)
             {
-                databaseController.BeginDatabase(Social.localUser.id,Social.localUser.userName);
+                databaseController.BeginDatabase(Social.localUser.id, Social.localUser.userName);
             }
-            else
-            {
-                Debug.LogError("Failed to load player score.");
-            }
-            });       
+        });
     }
     public void UpdateVersion()
     {

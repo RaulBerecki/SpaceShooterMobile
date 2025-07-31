@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -83,31 +82,6 @@ public class DatabaseController : MonoBehaviour
                     else
                     {
                         var users = JsonConvert.DeserializeObject<List<User>>(jsonResponse1);
-                        if (users[0].shipInfos == null) // UPDATE USER CREATED
-                        {
-                            users[0].UpdateCurrentUser(users[0].highscore);
-                            string json = JsonConvert.SerializeObject(users[0]);
-                            string urlUpdate = "https://molvqetyggsjxjcmakzv.supabase.co/rest/v1/users?id=eq." + users[0].id;
-
-                            UnityWebRequest requestUpdate = new UnityWebRequest(urlUpdate, "PATCH");
-                            byte[] jsonToSend = System.Text.Encoding.UTF8.GetBytes(json);
-                            requestUpdate.uploadHandler = new UploadHandlerRaw(jsonToSend);
-                            requestUpdate.downloadHandler = new DownloadHandlerBuffer();
-                            requestUpdate.SetRequestHeader("Content-Type", "application/json");
-                            requestUpdate.SetRequestHeader("apikey", supabaseKey);
-                            requestUpdate.SetRequestHeader("Authorization", "Bearer " + supabaseKey);
-
-                            yield return requestUpdate.SendWebRequest();
-
-                            if (request.result == UnityWebRequest.Result.Success)
-                            {
-                                Debug.Log("Highscore updated!");
-                            }
-                            else
-                            {
-                                Debug.LogError("Update failed: " + request.error + " | " + request.downloadHandler.text);
-                            }
-                        }
                         currentData = users[0];
                         Application.LoadLevel("SampleScene");
                     }

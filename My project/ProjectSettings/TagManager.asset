@@ -20,6 +20,9 @@ TagManager:
   - DestroyAllPowerUp
   - meteorManager
   - BouncingBulletPowerUp
+  - satellite
+  - satelliteManager
+  - resourceAid
   layers:
   - Default
   - TransparentFX

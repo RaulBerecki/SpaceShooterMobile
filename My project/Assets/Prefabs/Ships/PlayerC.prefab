@@ -542,14 +542,14 @@ MonoBehaviour:
   shootingPoint: {fileID: 6024319124573880284}
   bullet: {fileID: 561011147281613410, guid: ceab846a15dd0774690e843e56baa54a, type: 3}
   timerToSet: 0.9
-  bulletsAvailable: 0
+  bulletsAvailable: 100
   playing: 0
   pausing: 0
   offGame: 0
   gameOver: 0
   trailRenderer: {fileID: 0}
   trailTimer: 0
-  trailAvailable: 0
+  trailAvailable: 100
   aidMagnet: 0
   shootingUnlimited: 0
   fuelUnlimited: 0
@@ -563,6 +563,7 @@ MonoBehaviour:
   aidMagnetSoundTimer: 0
   allDestroySound: {fileID: 516178327104678856}
   aidMagnetSound: {fileID: 1767267142746532072}
+  resourcesCollected: 0
 --- !u!82 &8781664912610080325
 AudioSource:
   m_ObjectHideFlags: 0

@@ -1,5 +1,5 @@
-lastUpgrade=20000
-proj.pluginVersion=2.0.0
+lastUpgrade=20100
+proj.pluginVersion=2.1.0
 proj.AppId=652430267184
 and.BundleId=com.BeryStudio.Astroviator
 proj.classDir=Assets
